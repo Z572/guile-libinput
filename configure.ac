@@ -9,7 +9,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([1.14 gnu tar-ustar silent-rules subdir-objects \
  color-tests parallel-tests -Woverride -Wno-portability])
-AC_CONFIG_FILES([gen.scm])
+AC_CONFIG_FILES([gen.scm],[chmod +x gen.scm])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libinput/config.scm])
 AC_CONFIG_FILES([pre-inst-env], [chmod +x pre-inst-env])
