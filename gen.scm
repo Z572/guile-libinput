@@ -233,8 +233,7 @@
   out)
 
 (define* (main self #:optional
-               (file "/gnu/store/5zvwpqwlgxfi317ly8v52irbvjdhc1np-libinput-1.19.4/include/libinput.h")
-               (so "/gnu/store/5zvwpqwlgxfi317ly8v52irbvjdhc1np-libinput-1.19.4/lib/libinput.so")
+               (file "/gnu/store/s6vaaf7b1c7frhykzq7lf1c3ylnlc02f-libinput-1.19.4/include/libinput.h")
                #:rest arg)
   (for-each (lambda (o)
               (when o
@@ -243,8 +242,8 @@
                       #:use-module (bytestructure-class)
                       #:use-module ((system foreign) #:prefix ffi:)
                       #:use-module (bytestructures guile)
-                      #:use-module (oop goops))
-                   `(define-public %libinput (delay (dynamic-link ,so)))
+                      #:use-module (oop goops)
+                      #:use-module (libinput config))
                    `(define-syntax define-libinput-procedure
                       (lambda (x)
                         (syntax-case x ()
