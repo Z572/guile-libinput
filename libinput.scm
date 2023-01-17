@@ -10,6 +10,11 @@
   (oop goops)
   #:use-module
   (libinput config))
+(define-syntax-rule
+  (define-libinput-procedure (name args ...) (c-return c-name c-args) body ...)
+  (define-public name
+    (let ((% (ffi:pointer->procedure c-return c-name c-args)))
+      (lambda (args ...) body ...))))
 (define (pointer->string* ptr)
   (if (ffi:null-pointer? ptr) #f (ffi:pointer->string ptr)))
 (begin
@@ -349,121 +354,69 @@
     wrap-libinput-tablet-pad-mode-group
     unwrap-libinput-tablet-pad-mode-group
     libinput-tablet-pad-mode-group?))
-(define-public libinput-device-tablet-pad-get-num-mode-groups
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_tablet_pad_get_num_mode_groups"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-tablet-pad-get-mode-group
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_device_tablet_pad_get_mode_group"
-                   (force %libinput))
-                 (list '* ffi:unsigned-int))))
-    (lambda (device index)
-      (wrap-libinput-tablet-pad-mode-group
-        (%func (unwrap-libinput-device device) index)))))
-(define-public libinput-tablet-pad-mode-group-get-index
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_get_index"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (group) (%func (unwrap-libinput-tablet-pad-mode-group group)))))
-(define-public libinput-tablet-pad-mode-group-get-num-modes
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_get_num_modes"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (group) (%func (unwrap-libinput-tablet-pad-mode-group group)))))
-(define-public libinput-tablet-pad-mode-group-get-mode
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_get_mode"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (group) (%func (unwrap-libinput-tablet-pad-mode-group group)))))
-(define-public libinput-tablet-pad-mode-group-has-button
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_has_button"
-                   (force %libinput))
-                 (list '* ffi:unsigned-int))))
-    (lambda (group button)
-      (%func (unwrap-libinput-tablet-pad-mode-group group) button))))
-(define-public libinput-tablet-pad-mode-group-has-ring
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_has_ring"
-                   (force %libinput))
-                 (list '* ffi:unsigned-int))))
-    (lambda (group ring)
-      (%func (unwrap-libinput-tablet-pad-mode-group group) ring))))
-(define-public libinput-tablet-pad-mode-group-has-strip
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_has_strip"
-                   (force %libinput))
-                 (list '* ffi:unsigned-int))))
-    (lambda (group strip)
-      (%func (unwrap-libinput-tablet-pad-mode-group group) strip))))
-(define-public libinput-tablet-pad-mode-group-button-is-toggle
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_button_is_toggle"
-                   (force %libinput))
-                 (list '* ffi:unsigned-int))))
-    (lambda (group button)
-      (%func (unwrap-libinput-tablet-pad-mode-group group) button))))
-(define-public libinput-tablet-pad-mode-group-ref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_ref"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (group)
-      (wrap-libinput-tablet-pad-mode-group
-        (%func (unwrap-libinput-tablet-pad-mode-group group))))))
-(define-public libinput-tablet-pad-mode-group-unref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_unref"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (group)
-      (wrap-libinput-tablet-pad-mode-group
-        (%func (unwrap-libinput-tablet-pad-mode-group group))))))
-(define-public libinput-tablet-pad-mode-group-set-user-data
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_set_user_data"
-                   (force %libinput))
-                 (list '* '*))))
-    (lambda (group user_data)
-      (%func (unwrap-libinput-tablet-pad-mode-group group) user_data))))
-(define-public libinput-tablet-pad-mode-group-get-user-data
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_tablet_pad_mode_group_get_user_data"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (group) (%func (unwrap-libinput-tablet-pad-mode-group group)))))
+(define-libinput-procedure
+  (libinput-device-tablet-pad-get-num-mode-groups device)
+  (ffi:int "libinput_device_tablet_pad_get_num_mode_groups" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-tablet-pad-get-mode-group device index)
+  ('* "libinput_device_tablet_pad_get_mode_group" (list '* ffi:unsigned-int))
+  (wrap-libinput-tablet-pad-mode-group
+    (% (unwrap-libinput-device device) index)))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-get-index group)
+  (ffi:unsigned-int "libinput_tablet_pad_mode_group_get_index" (list '*))
+  (% (unwrap-libinput-tablet-pad-mode-group group)))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-get-num-modes group)
+  (ffi:unsigned-int "libinput_tablet_pad_mode_group_get_num_modes" (list '*))
+  (% (unwrap-libinput-tablet-pad-mode-group group)))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-get-mode group)
+  (ffi:unsigned-int "libinput_tablet_pad_mode_group_get_mode" (list '*))
+  (% (unwrap-libinput-tablet-pad-mode-group group)))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-has-button group button)
+  (ffi:int
+    "libinput_tablet_pad_mode_group_has_button"
+    (list '* ffi:unsigned-int))
+  (% (unwrap-libinput-tablet-pad-mode-group group) button))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-has-ring group ring)
+  (ffi:int
+    "libinput_tablet_pad_mode_group_has_ring"
+    (list '* ffi:unsigned-int))
+  (% (unwrap-libinput-tablet-pad-mode-group group) ring))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-has-strip group strip)
+  (ffi:int
+    "libinput_tablet_pad_mode_group_has_strip"
+    (list '* ffi:unsigned-int))
+  (% (unwrap-libinput-tablet-pad-mode-group group) strip))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-button-is-toggle group button)
+  (ffi:int
+    "libinput_tablet_pad_mode_group_button_is_toggle"
+    (list '* ffi:unsigned-int))
+  (% (unwrap-libinput-tablet-pad-mode-group group) button))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-ref group)
+  ('* "libinput_tablet_pad_mode_group_ref" (list '*))
+  (wrap-libinput-tablet-pad-mode-group
+    (% (unwrap-libinput-tablet-pad-mode-group group))))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-unref group)
+  ('* "libinput_tablet_pad_mode_group_unref" (list '*))
+  (wrap-libinput-tablet-pad-mode-group
+    (% (unwrap-libinput-tablet-pad-mode-group group))))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-set-user-data group user_data)
+  (ffi:void "libinput_tablet_pad_mode_group_set_user_data" (list '* '*))
+  (% (unwrap-libinput-tablet-pad-mode-group group) user_data))
+(define-libinput-procedure
+  (libinput-tablet-pad-mode-group-get-user-data group)
+  ('* "libinput_tablet_pad_mode_group_get_user_data" (list '*))
+  (% (unwrap-libinput-tablet-pad-mode-group group)))
 (begin
   (define-public %libinput-switch-state-enum
     (bs:enum '((LIBINPUT_SWITCH_STATE_OFF 0) (LIBINPUT_SWITCH_STATE_ON 1))))
@@ -603,60 +556,34 @@
         (error "not found" '%libinput-event-type-enum o)))
   (define-public (%libinput-event-type-enum->number o)
     (bs:enum->integer %libinput-event-type-enum o)))
-(define-public libinput-event-destroy
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func "libinput_event_destroy" (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event event)))))
-(define-public libinput-event-get-type
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func "libinput_event_get_type" (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-event-type-enum
-        (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-get-context
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_event_get_context" (force %libinput))
-                 (list '*))))
-    (lambda (event) (wrap-libinput (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-get-device
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_event_get_device" (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-device (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-get-pointer-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_get_pointer_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event-pointer (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-get-keyboard-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_get_keyboard_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event-keyboard (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-get-touch-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_get_touch_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event-touch (%func (unwrap-libinput-event event))))))
+(define-libinput-procedure
+  (libinput-event-destroy event)
+  (ffi:void "libinput_event_destroy" (list '*))
+  (% (unwrap-libinput-event event)))
+(define-libinput-procedure
+  (libinput-event-get-type event)
+  (ffi:int32 "libinput_event_get_type" (list '*))
+  (number->%libinput-event-type-enum (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-get-context event)
+  ('* "libinput_event_get_context" (list '*))
+  (wrap-libinput (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-get-device event)
+  ('* "libinput_event_get_device" (list '*))
+  (wrap-libinput-device (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-get-pointer-event event)
+  ('* "libinput_event_get_pointer_event" (list '*))
+  (wrap-libinput-event-pointer (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-get-keyboard-event event)
+  ('* "libinput_event_get_keyboard_event" (list '*))
+  (wrap-libinput-event-keyboard (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-get-touch-event event)
+  ('* "libinput_event_get_touch_event" (list '*))
+  (wrap-libinput-event-touch (% (unwrap-libinput-event event))))
 (begin
   (define-public %libinput-event-gesture-struct (bs:unknow))
   (define-bytestructure-class
@@ -666,1060 +593,537 @@
     wrap-libinput-event-gesture
     unwrap-libinput-event-gesture
     libinput-event-gesture?))
-(define-public libinput-event-get-gesture-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_get_gesture_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event-gesture (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-get-tablet-tool-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_get_tablet_tool_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event-tablet-tool
-        (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-get-tablet-pad-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_get_tablet_pad_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event-tablet-pad (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-get-switch-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_get_switch_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event-switch (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-get-device-notify-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_get_device_notify_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event-device-notify
-        (%func (unwrap-libinput-event event))))))
-(define-public libinput-event-device-notify-get-base-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_device_notify_get_base_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event
-        (%func (unwrap-libinput-event-device-notify event))))))
-(define-public libinput-event-keyboard-get-time
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_keyboard_get_time"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-keyboard event)))))
-(define-public libinput-event-keyboard-get-time-usec
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint64
-                 (dynamic-func
-                   "libinput_event_keyboard_get_time_usec"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-keyboard event)))))
-(define-public libinput-event-keyboard-get-key
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_keyboard_get_key"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-keyboard event)))))
-(define-public libinput-event-keyboard-get-key-state
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_keyboard_get_key_state"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-key-state-enum
-        (%func (unwrap-libinput-event-keyboard event))))))
-(define-public libinput-event-keyboard-get-base-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_keyboard_get_base_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event (%func (unwrap-libinput-event-keyboard event))))))
-(define-public libinput-event-keyboard-get-seat-key-count
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_keyboard_get_seat_key_count"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-keyboard event)))))
-(define-public libinput-event-pointer-get-time
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_pointer_get_time"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-get-time-usec
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint64
-                 (dynamic-func
-                   "libinput_event_pointer_get_time_usec"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-get-dx
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_dx"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-get-dy
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_dy"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-get-dx-unaccelerated
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_dx_unaccelerated"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-get-dy-unaccelerated
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_dy_unaccelerated"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-get-absolute-x
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_absolute_x"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-get-absolute-y
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_absolute_y"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-get-absolute-x-transformed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_absolute_x_transformed"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (event width)
-      (%func (unwrap-libinput-event-pointer event) width))))
-(define-public libinput-event-pointer-get-absolute-y-transformed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_absolute_y_transformed"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (event height)
-      (%func (unwrap-libinput-event-pointer event) height))))
-(define-public libinput-event-pointer-get-button
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_pointer_get_button"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-get-button-state
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_pointer_get_button_state"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-button-state-enum
-        (%func (unwrap-libinput-event-pointer event))))))
-(define-public libinput-event-pointer-get-seat-button-count
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_pointer_get_seat_button_count"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
-(define-public libinput-event-pointer-has-axis
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_pointer_has_axis"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (event axis)
-      (%func (unwrap-libinput-event-pointer event)
-             (%libinput-pointer-axis-enum->number axis)))))
-(define-public libinput-event-pointer-get-axis-value
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_axis_value"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (event axis)
-      (%func (unwrap-libinput-event-pointer event)
-             (%libinput-pointer-axis-enum->number axis)))))
-(define-public libinput-event-pointer-get-axis-source
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_pointer_get_axis_source"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-pointer-axis-source-enum
-        (%func (unwrap-libinput-event-pointer event))))))
-(define-public libinput-event-pointer-get-axis-value-discrete
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_axis_value_discrete"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (event axis)
-      (%func (unwrap-libinput-event-pointer event)
-             (%libinput-pointer-axis-enum->number axis)))))
-(define-public libinput-event-pointer-get-scroll-value
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_scroll_value"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (event axis)
-      (%func (unwrap-libinput-event-pointer event)
-             (%libinput-pointer-axis-enum->number axis)))))
-(define-public libinput-event-pointer-get-scroll-value-v120
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_pointer_get_scroll_value_v120"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (event axis)
-      (%func (unwrap-libinput-event-pointer event)
-             (%libinput-pointer-axis-enum->number axis)))))
-(define-public libinput-event-pointer-get-base-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_pointer_get_base_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event (%func (unwrap-libinput-event-pointer event))))))
-(define-public libinput-event-touch-get-time
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_touch_get_time"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-touch event)))))
-(define-public libinput-event-touch-get-time-usec
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint64
-                 (dynamic-func
-                   "libinput_event_touch_get_time_usec"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-touch event)))))
-(define-public libinput-event-touch-get-slot
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_touch_get_slot"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-touch event)))))
-(define-public libinput-event-touch-get-seat-slot
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_touch_get_seat_slot"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-touch event)))))
-(define-public libinput-event-touch-get-x
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func "libinput_event_touch_get_x" (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-touch event)))))
-(define-public libinput-event-touch-get-y
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func "libinput_event_touch_get_y" (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-touch event)))))
-(define-public libinput-event-touch-get-x-transformed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_touch_get_x_transformed"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (event width) (%func (unwrap-libinput-event-touch event) width))))
-(define-public libinput-event-touch-get-y-transformed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_touch_get_y_transformed"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (event height)
-      (%func (unwrap-libinput-event-touch event) height))))
-(define-public libinput-event-touch-get-base-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_touch_get_base_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event (%func (unwrap-libinput-event-touch event))))))
-(define-public libinput-event-gesture-get-time
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_gesture_get_time"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-gesture-get-time-usec
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint64
-                 (dynamic-func
-                   "libinput_event_gesture_get_time_usec"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-gesture-get-base-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_gesture_get_base_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event (%func (unwrap-libinput-event-gesture event))))))
-(define-public libinput-event-gesture-get-finger-count
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_gesture_get_finger_count"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-gesture-get-cancelled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_gesture_get_cancelled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-gesture-get-dx
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_gesture_get_dx"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-gesture-get-dy
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_gesture_get_dy"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-gesture-get-dx-unaccelerated
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_gesture_get_dx_unaccelerated"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-gesture-get-dy-unaccelerated
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_gesture_get_dy_unaccelerated"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-gesture-get-scale
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_gesture_get_scale"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-gesture-get-angle-delta
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_gesture_get_angle_delta"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-gesture event)))))
-(define-public libinput-event-tablet-tool-get-base-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_base_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event
-        (%func (unwrap-libinput-event-tablet-tool event))))))
-(define-public libinput-event-tablet-tool-x-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_x_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-y-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_y_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-pressure-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_pressure_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-distance-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_distance_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-tilt-x-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_tilt_x_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-tilt-y-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_tilt_y_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-rotation-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_rotation_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-slider-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_slider_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-size-major-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_size_major_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-size-minor-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_size_minor_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-wheel-has-changed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_wheel_has_changed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-x
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_x"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-y
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_y"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-dx
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_dx"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-dy
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_dy"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-pressure
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_pressure"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-distance
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_distance"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-tilt-x
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_tilt_x"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-tilt-y
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_tilt_y"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-rotation
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_rotation"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-slider-position
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_slider_position"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-size-major
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_size_major"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-size-minor
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_size_minor"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-wheel-delta
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_wheel_delta"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-wheel-delta-discrete
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_wheel_delta_discrete"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-x-transformed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_x_transformed"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (event width)
-      (%func (unwrap-libinput-event-tablet-tool event) width))))
-(define-public libinput-event-tablet-tool-get-y-transformed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_y_transformed"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (event height)
-      (%func (unwrap-libinput-event-tablet-tool event) height))))
-(define-public libinput-event-tablet-tool-get-tool
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_tool"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-tablet-tool
-        (%func (unwrap-libinput-event-tablet-tool event))))))
-(define-public libinput-event-tablet-tool-get-proximity-state
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_proximity_state"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-tablet-tool-proximity-state-enum
-        (%func (unwrap-libinput-event-tablet-tool event))))))
-(define-public libinput-event-tablet-tool-get-tip-state
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_tip_state"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-tablet-tool-tip-state-enum
-        (%func (unwrap-libinput-event-tablet-tool event))))))
-(define-public libinput-event-tablet-tool-get-button
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_button"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-button-state
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_button_state"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-button-state-enum
-        (%func (unwrap-libinput-event-tablet-tool event))))))
-(define-public libinput-event-tablet-tool-get-seat-button-count
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_seat_button_count"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-time
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_time"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-event-tablet-tool-get-time-usec
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint64
-                 (dynamic-func
-                   "libinput_event_tablet_tool_get_time_usec"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
-(define-public libinput-tablet-tool-get-type
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_tablet_tool_get_type"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool)
-      (number->%libinput-tablet-tool-type-enum
-        (%func (unwrap-libinput-tablet-tool tool))))))
-(define-public libinput-tablet-tool-get-tool-id
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint64
-                 (dynamic-func
-                   "libinput_tablet_tool_get_tool_id"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-ref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_tablet_tool_ref" (force %libinput))
-                 (list '*))))
-    (lambda (tool)
-      (wrap-libinput-tablet-tool (%func (unwrap-libinput-tablet-tool tool))))))
-(define-public libinput-tablet-tool-unref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_tablet_tool_unref" (force %libinput))
-                 (list '*))))
-    (lambda (tool)
-      (wrap-libinput-tablet-tool (%func (unwrap-libinput-tablet-tool tool))))))
-(define-public libinput-tablet-tool-has-pressure
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_tool_has_pressure"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-has-distance
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_tool_has_distance"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-has-tilt
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_tool_has_tilt"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-has-rotation
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_tool_has_rotation"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-has-slider
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_tool_has_slider"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-has-size
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_tool_has_size"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-has-wheel
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_tool_has_wheel"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-has-button
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_tool_has_button"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (tool code) (%func (unwrap-libinput-tablet-tool tool) code))))
-(define-public libinput-tablet-tool-is-unique
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_tablet_tool_is_unique"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-get-serial
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint64
-                 (dynamic-func
-                   "libinput_tablet_tool_get_serial"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-get-user-data
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_tablet_tool_get_user_data"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
-(define-public libinput-tablet-tool-set-user-data
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func
-                   "libinput_tablet_tool_set_user_data"
-                   (force %libinput))
-                 (list '* '*))))
-    (lambda (tool user_data)
-      (%func (unwrap-libinput-tablet-tool tool) user_data))))
-(define-public libinput-event-tablet-pad-get-base-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_base_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event (%func (unwrap-libinput-event-tablet-pad event))))))
-(define-public libinput-event-tablet-pad-get-ring-position
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_ring_position"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
-(define-public libinput-event-tablet-pad-get-ring-number
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_ring_number"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
-(define-public libinput-event-tablet-pad-get-ring-source
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_ring_source"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-tablet-pad-ring-axis-source-enum
-        (%func (unwrap-libinput-event-tablet-pad event))))))
-(define-public libinput-event-tablet-pad-get-strip-position
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_strip_position"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
-(define-public libinput-event-tablet-pad-get-strip-number
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_strip_number"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
-(define-public libinput-event-tablet-pad-get-strip-source
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_strip_source"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-tablet-pad-strip-axis-source-enum
-        (%func (unwrap-libinput-event-tablet-pad event))))))
-(define-public libinput-event-tablet-pad-get-button-number
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_button_number"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
-(define-public libinput-event-tablet-pad-get-button-state
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_button_state"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-button-state-enum
-        (%func (unwrap-libinput-event-tablet-pad event))))))
-(define-public libinput-event-tablet-pad-get-key
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_key"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
-(define-public libinput-event-tablet-pad-get-key-state
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_key_state"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-key-state-enum
-        (%func (unwrap-libinput-event-tablet-pad event))))))
-(define-public libinput-event-tablet-pad-get-mode
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_mode"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
-(define-public libinput-event-tablet-pad-get-mode-group
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_mode_group"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-tablet-pad-mode-group
-        (%func (unwrap-libinput-event-tablet-pad event))))))
-(define-public libinput-event-tablet-pad-get-time
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_time"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
-(define-public libinput-event-tablet-pad-get-time-usec
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint64
-                 (dynamic-func
-                   "libinput_event_tablet_pad_get_time_usec"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
-(define-public libinput-event-switch-get-switch
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_switch_get_switch"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-switch-enum
-        (%func (unwrap-libinput-event-switch event))))))
-(define-public libinput-event-switch-get-switch-state
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_event_switch_get_switch_state"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (number->%libinput-switch-state-enum
-        (%func (unwrap-libinput-event-switch event))))))
-(define-public libinput-event-switch-get-base-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_event_switch_get_base_event"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event)
-      (wrap-libinput-event (%func (unwrap-libinput-event-switch event))))))
-(define-public libinput-event-switch-get-time
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_event_switch_get_time"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-switch event)))))
-(define-public libinput-event-switch-get-time-usec
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint64
-                 (dynamic-func
-                   "libinput_event_switch_get_time_usec"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-switch event)))))
+(define-libinput-procedure
+  (libinput-event-get-gesture-event event)
+  ('* "libinput_event_get_gesture_event" (list '*))
+  (wrap-libinput-event-gesture (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-get-tablet-tool-event event)
+  ('* "libinput_event_get_tablet_tool_event" (list '*))
+  (wrap-libinput-event-tablet-tool (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-get-tablet-pad-event event)
+  ('* "libinput_event_get_tablet_pad_event" (list '*))
+  (wrap-libinput-event-tablet-pad (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-get-switch-event event)
+  ('* "libinput_event_get_switch_event" (list '*))
+  (wrap-libinput-event-switch (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-get-device-notify-event event)
+  ('* "libinput_event_get_device_notify_event" (list '*))
+  (wrap-libinput-event-device-notify (% (unwrap-libinput-event event))))
+(define-libinput-procedure
+  (libinput-event-device-notify-get-base-event event)
+  ('* "libinput_event_device_notify_get_base_event" (list '*))
+  (wrap-libinput-event (% (unwrap-libinput-event-device-notify event))))
+(define-libinput-procedure
+  (libinput-event-keyboard-get-time event)
+  (ffi:uint32 "libinput_event_keyboard_get_time" (list '*))
+  (% (unwrap-libinput-event-keyboard event)))
+(define-libinput-procedure
+  (libinput-event-keyboard-get-time-usec event)
+  (ffi:uint64 "libinput_event_keyboard_get_time_usec" (list '*))
+  (% (unwrap-libinput-event-keyboard event)))
+(define-libinput-procedure
+  (libinput-event-keyboard-get-key event)
+  (ffi:uint32 "libinput_event_keyboard_get_key" (list '*))
+  (% (unwrap-libinput-event-keyboard event)))
+(define-libinput-procedure
+  (libinput-event-keyboard-get-key-state event)
+  (ffi:int32 "libinput_event_keyboard_get_key_state" (list '*))
+  (number->%libinput-key-state-enum
+    (% (unwrap-libinput-event-keyboard event))))
+(define-libinput-procedure
+  (libinput-event-keyboard-get-base-event event)
+  ('* "libinput_event_keyboard_get_base_event" (list '*))
+  (wrap-libinput-event (% (unwrap-libinput-event-keyboard event))))
+(define-libinput-procedure
+  (libinput-event-keyboard-get-seat-key-count event)
+  (ffi:uint32 "libinput_event_keyboard_get_seat_key_count" (list '*))
+  (% (unwrap-libinput-event-keyboard event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-time event)
+  (ffi:uint32 "libinput_event_pointer_get_time" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-time-usec event)
+  (ffi:uint64 "libinput_event_pointer_get_time_usec" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-dx event)
+  (ffi:double "libinput_event_pointer_get_dx" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-dy event)
+  (ffi:double "libinput_event_pointer_get_dy" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-dx-unaccelerated event)
+  (ffi:double "libinput_event_pointer_get_dx_unaccelerated" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-dy-unaccelerated event)
+  (ffi:double "libinput_event_pointer_get_dy_unaccelerated" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-absolute-x event)
+  (ffi:double "libinput_event_pointer_get_absolute_x" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-absolute-y event)
+  (ffi:double "libinput_event_pointer_get_absolute_y" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-absolute-x-transformed event width)
+  (ffi:double
+    "libinput_event_pointer_get_absolute_x_transformed"
+    (list '* ffi:uint32))
+  (% (unwrap-libinput-event-pointer event) width))
+(define-libinput-procedure
+  (libinput-event-pointer-get-absolute-y-transformed event height)
+  (ffi:double
+    "libinput_event_pointer_get_absolute_y_transformed"
+    (list '* ffi:uint32))
+  (% (unwrap-libinput-event-pointer event) height))
+(define-libinput-procedure
+  (libinput-event-pointer-get-button event)
+  (ffi:uint32 "libinput_event_pointer_get_button" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-button-state event)
+  (ffi:int32 "libinput_event_pointer_get_button_state" (list '*))
+  (number->%libinput-button-state-enum
+    (% (unwrap-libinput-event-pointer event))))
+(define-libinput-procedure
+  (libinput-event-pointer-get-seat-button-count event)
+  (ffi:uint32 "libinput_event_pointer_get_seat_button_count" (list '*))
+  (% (unwrap-libinput-event-pointer event)))
+(define-libinput-procedure
+  (libinput-event-pointer-has-axis event axis)
+  (ffi:int "libinput_event_pointer_has_axis" (list '* ffi:int32))
+  (% (unwrap-libinput-event-pointer event)
+     (%libinput-pointer-axis-enum->number axis)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-axis-value event axis)
+  (ffi:double "libinput_event_pointer_get_axis_value" (list '* ffi:int32))
+  (% (unwrap-libinput-event-pointer event)
+     (%libinput-pointer-axis-enum->number axis)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-axis-source event)
+  (ffi:int32 "libinput_event_pointer_get_axis_source" (list '*))
+  (number->%libinput-pointer-axis-source-enum
+    (% (unwrap-libinput-event-pointer event))))
+(define-libinput-procedure
+  (libinput-event-pointer-get-axis-value-discrete event axis)
+  (ffi:double
+    "libinput_event_pointer_get_axis_value_discrete"
+    (list '* ffi:int32))
+  (% (unwrap-libinput-event-pointer event)
+     (%libinput-pointer-axis-enum->number axis)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-scroll-value event axis)
+  (ffi:double "libinput_event_pointer_get_scroll_value" (list '* ffi:int32))
+  (% (unwrap-libinput-event-pointer event)
+     (%libinput-pointer-axis-enum->number axis)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-scroll-value-v120 event axis)
+  (ffi:double
+    "libinput_event_pointer_get_scroll_value_v120"
+    (list '* ffi:int32))
+  (% (unwrap-libinput-event-pointer event)
+     (%libinput-pointer-axis-enum->number axis)))
+(define-libinput-procedure
+  (libinput-event-pointer-get-base-event event)
+  ('* "libinput_event_pointer_get_base_event" (list '*))
+  (wrap-libinput-event (% (unwrap-libinput-event-pointer event))))
+(define-libinput-procedure
+  (libinput-event-touch-get-time event)
+  (ffi:uint32 "libinput_event_touch_get_time" (list '*))
+  (% (unwrap-libinput-event-touch event)))
+(define-libinput-procedure
+  (libinput-event-touch-get-time-usec event)
+  (ffi:uint64 "libinput_event_touch_get_time_usec" (list '*))
+  (% (unwrap-libinput-event-touch event)))
+(define-libinput-procedure
+  (libinput-event-touch-get-slot event)
+  (ffi:int32 "libinput_event_touch_get_slot" (list '*))
+  (% (unwrap-libinput-event-touch event)))
+(define-libinput-procedure
+  (libinput-event-touch-get-seat-slot event)
+  (ffi:int32 "libinput_event_touch_get_seat_slot" (list '*))
+  (% (unwrap-libinput-event-touch event)))
+(define-libinput-procedure
+  (libinput-event-touch-get-x event)
+  (ffi:double "libinput_event_touch_get_x" (list '*))
+  (% (unwrap-libinput-event-touch event)))
+(define-libinput-procedure
+  (libinput-event-touch-get-y event)
+  (ffi:double "libinput_event_touch_get_y" (list '*))
+  (% (unwrap-libinput-event-touch event)))
+(define-libinput-procedure
+  (libinput-event-touch-get-x-transformed event width)
+  (ffi:double "libinput_event_touch_get_x_transformed" (list '* ffi:uint32))
+  (% (unwrap-libinput-event-touch event) width))
+(define-libinput-procedure
+  (libinput-event-touch-get-y-transformed event height)
+  (ffi:double "libinput_event_touch_get_y_transformed" (list '* ffi:uint32))
+  (% (unwrap-libinput-event-touch event) height))
+(define-libinput-procedure
+  (libinput-event-touch-get-base-event event)
+  ('* "libinput_event_touch_get_base_event" (list '*))
+  (wrap-libinput-event (% (unwrap-libinput-event-touch event))))
+(define-libinput-procedure
+  (libinput-event-gesture-get-time event)
+  (ffi:uint32 "libinput_event_gesture_get_time" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-gesture-get-time-usec event)
+  (ffi:uint64 "libinput_event_gesture_get_time_usec" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-gesture-get-base-event event)
+  ('* "libinput_event_gesture_get_base_event" (list '*))
+  (wrap-libinput-event (% (unwrap-libinput-event-gesture event))))
+(define-libinput-procedure
+  (libinput-event-gesture-get-finger-count event)
+  (ffi:int "libinput_event_gesture_get_finger_count" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-gesture-get-cancelled event)
+  (ffi:int "libinput_event_gesture_get_cancelled" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-gesture-get-dx event)
+  (ffi:double "libinput_event_gesture_get_dx" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-gesture-get-dy event)
+  (ffi:double "libinput_event_gesture_get_dy" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-gesture-get-dx-unaccelerated event)
+  (ffi:double "libinput_event_gesture_get_dx_unaccelerated" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-gesture-get-dy-unaccelerated event)
+  (ffi:double "libinput_event_gesture_get_dy_unaccelerated" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-gesture-get-scale event)
+  (ffi:double "libinput_event_gesture_get_scale" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-gesture-get-angle-delta event)
+  (ffi:double "libinput_event_gesture_get_angle_delta" (list '*))
+  (% (unwrap-libinput-event-gesture event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-base-event event)
+  ('* "libinput_event_tablet_tool_get_base_event" (list '*))
+  (wrap-libinput-event (% (unwrap-libinput-event-tablet-tool event))))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-x-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_x_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-y-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_y_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-pressure-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_pressure_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-distance-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_distance_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-tilt-x-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_tilt_x_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-tilt-y-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_tilt_y_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-rotation-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_rotation_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-slider-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_slider_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-size-major-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_size_major_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-size-minor-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_size_minor_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-wheel-has-changed event)
+  (ffi:int "libinput_event_tablet_tool_wheel_has_changed" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-x event)
+  (ffi:double "libinput_event_tablet_tool_get_x" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-y event)
+  (ffi:double "libinput_event_tablet_tool_get_y" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-dx event)
+  (ffi:double "libinput_event_tablet_tool_get_dx" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-dy event)
+  (ffi:double "libinput_event_tablet_tool_get_dy" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-pressure event)
+  (ffi:double "libinput_event_tablet_tool_get_pressure" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-distance event)
+  (ffi:double "libinput_event_tablet_tool_get_distance" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-tilt-x event)
+  (ffi:double "libinput_event_tablet_tool_get_tilt_x" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-tilt-y event)
+  (ffi:double "libinput_event_tablet_tool_get_tilt_y" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-rotation event)
+  (ffi:double "libinput_event_tablet_tool_get_rotation" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-slider-position event)
+  (ffi:double "libinput_event_tablet_tool_get_slider_position" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-size-major event)
+  (ffi:double "libinput_event_tablet_tool_get_size_major" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-size-minor event)
+  (ffi:double "libinput_event_tablet_tool_get_size_minor" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-wheel-delta event)
+  (ffi:double "libinput_event_tablet_tool_get_wheel_delta" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-wheel-delta-discrete event)
+  (ffi:int "libinput_event_tablet_tool_get_wheel_delta_discrete" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-x-transformed event width)
+  (ffi:double
+    "libinput_event_tablet_tool_get_x_transformed"
+    (list '* ffi:uint32))
+  (% (unwrap-libinput-event-tablet-tool event) width))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-y-transformed event height)
+  (ffi:double
+    "libinput_event_tablet_tool_get_y_transformed"
+    (list '* ffi:uint32))
+  (% (unwrap-libinput-event-tablet-tool event) height))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-tool event)
+  ('* "libinput_event_tablet_tool_get_tool" (list '*))
+  (wrap-libinput-tablet-tool (% (unwrap-libinput-event-tablet-tool event))))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-proximity-state event)
+  (ffi:int32 "libinput_event_tablet_tool_get_proximity_state" (list '*))
+  (number->%libinput-tablet-tool-proximity-state-enum
+    (% (unwrap-libinput-event-tablet-tool event))))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-tip-state event)
+  (ffi:int32 "libinput_event_tablet_tool_get_tip_state" (list '*))
+  (number->%libinput-tablet-tool-tip-state-enum
+    (% (unwrap-libinput-event-tablet-tool event))))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-button event)
+  (ffi:uint32 "libinput_event_tablet_tool_get_button" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-button-state event)
+  (ffi:int32 "libinput_event_tablet_tool_get_button_state" (list '*))
+  (number->%libinput-button-state-enum
+    (% (unwrap-libinput-event-tablet-tool event))))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-seat-button-count event)
+  (ffi:uint32 "libinput_event_tablet_tool_get_seat_button_count" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-time event)
+  (ffi:uint32 "libinput_event_tablet_tool_get_time" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-event-tablet-tool-get-time-usec event)
+  (ffi:uint64 "libinput_event_tablet_tool_get_time_usec" (list '*))
+  (% (unwrap-libinput-event-tablet-tool event)))
+(define-libinput-procedure
+  (libinput-tablet-tool-get-type tool)
+  (ffi:int32 "libinput_tablet_tool_get_type" (list '*))
+  (number->%libinput-tablet-tool-type-enum
+    (% (unwrap-libinput-tablet-tool tool))))
+(define-libinput-procedure
+  (libinput-tablet-tool-get-tool-id tool)
+  (ffi:uint64 "libinput_tablet_tool_get_tool_id" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-ref tool)
+  ('* "libinput_tablet_tool_ref" (list '*))
+  (wrap-libinput-tablet-tool (% (unwrap-libinput-tablet-tool tool))))
+(define-libinput-procedure
+  (libinput-tablet-tool-unref tool)
+  ('* "libinput_tablet_tool_unref" (list '*))
+  (wrap-libinput-tablet-tool (% (unwrap-libinput-tablet-tool tool))))
+(define-libinput-procedure
+  (libinput-tablet-tool-has-pressure tool)
+  (ffi:int "libinput_tablet_tool_has_pressure" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-has-distance tool)
+  (ffi:int "libinput_tablet_tool_has_distance" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-has-tilt tool)
+  (ffi:int "libinput_tablet_tool_has_tilt" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-has-rotation tool)
+  (ffi:int "libinput_tablet_tool_has_rotation" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-has-slider tool)
+  (ffi:int "libinput_tablet_tool_has_slider" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-has-size tool)
+  (ffi:int "libinput_tablet_tool_has_size" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-has-wheel tool)
+  (ffi:int "libinput_tablet_tool_has_wheel" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-has-button tool code)
+  (ffi:int "libinput_tablet_tool_has_button" (list '* ffi:uint32))
+  (% (unwrap-libinput-tablet-tool tool) code))
+(define-libinput-procedure
+  (libinput-tablet-tool-is-unique tool)
+  (ffi:int "libinput_tablet_tool_is_unique" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-get-serial tool)
+  (ffi:uint64 "libinput_tablet_tool_get_serial" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-get-user-data tool)
+  ('* "libinput_tablet_tool_get_user_data" (list '*))
+  (% (unwrap-libinput-tablet-tool tool)))
+(define-libinput-procedure
+  (libinput-tablet-tool-set-user-data tool user_data)
+  (ffi:void "libinput_tablet_tool_set_user_data" (list '* '*))
+  (% (unwrap-libinput-tablet-tool tool) user_data))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-base-event event)
+  ('* "libinput_event_tablet_pad_get_base_event" (list '*))
+  (wrap-libinput-event (% (unwrap-libinput-event-tablet-pad event))))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-ring-position event)
+  (ffi:double "libinput_event_tablet_pad_get_ring_position" (list '*))
+  (% (unwrap-libinput-event-tablet-pad event)))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-ring-number event)
+  (ffi:unsigned-int "libinput_event_tablet_pad_get_ring_number" (list '*))
+  (% (unwrap-libinput-event-tablet-pad event)))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-ring-source event)
+  (ffi:int32 "libinput_event_tablet_pad_get_ring_source" (list '*))
+  (number->%libinput-tablet-pad-ring-axis-source-enum
+    (% (unwrap-libinput-event-tablet-pad event))))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-strip-position event)
+  (ffi:double "libinput_event_tablet_pad_get_strip_position" (list '*))
+  (% (unwrap-libinput-event-tablet-pad event)))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-strip-number event)
+  (ffi:unsigned-int "libinput_event_tablet_pad_get_strip_number" (list '*))
+  (% (unwrap-libinput-event-tablet-pad event)))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-strip-source event)
+  (ffi:int32 "libinput_event_tablet_pad_get_strip_source" (list '*))
+  (number->%libinput-tablet-pad-strip-axis-source-enum
+    (% (unwrap-libinput-event-tablet-pad event))))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-button-number event)
+  (ffi:uint32 "libinput_event_tablet_pad_get_button_number" (list '*))
+  (% (unwrap-libinput-event-tablet-pad event)))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-button-state event)
+  (ffi:int32 "libinput_event_tablet_pad_get_button_state" (list '*))
+  (number->%libinput-button-state-enum
+    (% (unwrap-libinput-event-tablet-pad event))))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-key event)
+  (ffi:uint32 "libinput_event_tablet_pad_get_key" (list '*))
+  (% (unwrap-libinput-event-tablet-pad event)))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-key-state event)
+  (ffi:int32 "libinput_event_tablet_pad_get_key_state" (list '*))
+  (number->%libinput-key-state-enum
+    (% (unwrap-libinput-event-tablet-pad event))))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-mode event)
+  (ffi:unsigned-int "libinput_event_tablet_pad_get_mode" (list '*))
+  (% (unwrap-libinput-event-tablet-pad event)))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-mode-group event)
+  ('* "libinput_event_tablet_pad_get_mode_group" (list '*))
+  (wrap-libinput-tablet-pad-mode-group
+    (% (unwrap-libinput-event-tablet-pad event))))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-time event)
+  (ffi:uint32 "libinput_event_tablet_pad_get_time" (list '*))
+  (% (unwrap-libinput-event-tablet-pad event)))
+(define-libinput-procedure
+  (libinput-event-tablet-pad-get-time-usec event)
+  (ffi:uint64 "libinput_event_tablet_pad_get_time_usec" (list '*))
+  (% (unwrap-libinput-event-tablet-pad event)))
+(define-libinput-procedure
+  (libinput-event-switch-get-switch event)
+  (ffi:int32 "libinput_event_switch_get_switch" (list '*))
+  (number->%libinput-switch-enum (% (unwrap-libinput-event-switch event))))
+(define-libinput-procedure
+  (libinput-event-switch-get-switch-state event)
+  (ffi:int32 "libinput_event_switch_get_switch_state" (list '*))
+  (number->%libinput-switch-state-enum
+    (% (unwrap-libinput-event-switch event))))
+(define-libinput-procedure
+  (libinput-event-switch-get-base-event event)
+  ('* "libinput_event_switch_get_base_event" (list '*))
+  (wrap-libinput-event (% (unwrap-libinput-event-switch event))))
+(define-libinput-procedure
+  (libinput-event-switch-get-time event)
+  (ffi:uint32 "libinput_event_switch_get_time" (list '*))
+  (% (unwrap-libinput-event-switch event)))
+(define-libinput-procedure
+  (libinput-event-switch-get-time-usec event)
+  (ffi:uint64 "libinput_event_switch_get_time_usec" (list '*))
+  (% (unwrap-libinput-event-switch event)))
 (begin
   (define-public %libinput-interface-struct
     (bs:struct
-      `((open_restricted ,(bs:pointer '*))
-        (close_restricted ,(bs:pointer '*)))))
+      `((open-restricted ,(bs:pointer '*))
+        (close-restricted ,(bs:pointer '*)))))
   (define-bytestructure-class
     <libinput-interface>
     ()
@@ -1727,424 +1131,237 @@
     wrap-libinput-interface
     unwrap-libinput-interface
     libinput-interface?
-    (open_restricted
+    (open-restricted
       #:init-keyword
-      #:open_restricted
+      #:open-restricted
       #:accessor
-      .open_restricted)
-    (close_restricted
+      .open-restricted)
+    (close-restricted
       #:init-keyword
-      #:close_restricted
+      #:close-restricted
       #:accessor
-      .close_restricted))
-  (export .open_restricted .close_restricted))
-(define-public libinput-udev-create-context
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_udev_create_context"
-                   (force %libinput))
-                 (list '* '* '*))))
-    (lambda (interface user_data udev)
-      (wrap-libinput
-        (%func (unwrap-libinput-interface interface) user_data udev)))))
-(define-public libinput-udev-assign-seat
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func "libinput_udev_assign_seat" (force %libinput))
-                 (list '* '*))))
-    (lambda (libinput seat_id)
-      (%func (unwrap-libinput libinput) (ffi:string->pointer seat_id)))))
-(define-public libinput-path-create-context
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_path_create_context"
-                   (force %libinput))
-                 (list '* '*))))
-    (lambda (interface user_data)
-      (wrap-libinput
-        (%func (unwrap-libinput-interface interface) user_data)))))
-(define-public libinput-path-add-device
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_path_add_device" (force %libinput))
-                 (list '* '*))))
-    (lambda (libinput path)
-      (wrap-libinput-device
-        (%func (unwrap-libinput libinput) (ffi:string->pointer path))))))
-(define-public libinput-path-remove-device
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func "libinput_path_remove_device" (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-get-fd
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func "libinput_get_fd" (force %libinput))
-                 (list '*))))
-    (lambda (libinput) (%func (unwrap-libinput libinput)))))
-(define-public libinput-dispatch
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func "libinput_dispatch" (force %libinput))
-                 (list '*))))
-    (lambda (libinput) (%func (unwrap-libinput libinput)))))
-(define-public libinput-get-event
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_get_event" (force %libinput))
-                 (list '*))))
-    (lambda (libinput)
-      (wrap-libinput-event (%func (unwrap-libinput libinput))))))
-(define-public libinput-next-event-type
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func "libinput_next_event_type" (force %libinput))
-                 (list '*))))
-    (lambda (libinput)
-      (number->%libinput-event-type-enum (%func (unwrap-libinput libinput))))))
-(define-public libinput-set-user-data
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func "libinput_set_user_data" (force %libinput))
-                 (list '* '*))))
-    (lambda (libinput user_data)
-      (%func (unwrap-libinput libinput) user_data))))
-(define-public libinput-get-user-data
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_get_user_data" (force %libinput))
-                 (list '*))))
-    (lambda (libinput) (%func (unwrap-libinput libinput)))))
-(define-public libinput-resume
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func "libinput_resume" (force %libinput))
-                 (list '*))))
-    (lambda (libinput) (%func (unwrap-libinput libinput)))))
-(define-public libinput-suspend
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func "libinput_suspend" (force %libinput))
-                 (list '*))))
-    (lambda (libinput) (%func (unwrap-libinput libinput)))))
-(define-public libinput-ref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_ref" (force %libinput))
-                 (list '*))))
-    (lambda (libinput) (wrap-libinput (%func (unwrap-libinput libinput))))))
-(define-public libinput-unref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_unref" (force %libinput))
-                 (list '*))))
-    (lambda (libinput) (wrap-libinput (%func (unwrap-libinput libinput))))))
-(define-public libinput-log-set-priority
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func "libinput_log_set_priority" (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (libinput priority)
-      (%func (unwrap-libinput libinput)
-             (%libinput-log-priority-enum->number priority)))))
-(define-public libinput-log-get-priority
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func "libinput_log_get_priority" (force %libinput))
-                 (list '*))))
-    (lambda (libinput)
-      (number->%libinput-log-priority-enum
-        (%func (unwrap-libinput libinput))))))
+      .close-restricted))
+  (export .open-restricted .close-restricted))
+(define-libinput-procedure
+  (libinput-udev-create-context interface user_data udev)
+  ('* "libinput_udev_create_context" (list '* '* '*))
+  (wrap-libinput (% (unwrap-libinput-interface interface) user_data udev)))
+(define-libinput-procedure
+  (libinput-udev-assign-seat libinput seat_id)
+  (ffi:int "libinput_udev_assign_seat" (list '* '*))
+  (% (unwrap-libinput libinput) (ffi:string->pointer seat_id)))
+(define-libinput-procedure
+  (libinput-path-create-context interface user_data)
+  ('* "libinput_path_create_context" (list '* '*))
+  (wrap-libinput (% (unwrap-libinput-interface interface) user_data)))
+(define-libinput-procedure
+  (libinput-path-add-device libinput path)
+  ('* "libinput_path_add_device" (list '* '*))
+  (wrap-libinput-device
+    (% (unwrap-libinput libinput) (ffi:string->pointer path))))
+(define-libinput-procedure
+  (libinput-path-remove-device device)
+  (ffi:void "libinput_path_remove_device" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-get-fd libinput)
+  (ffi:int "libinput_get_fd" (list '*))
+  (% (unwrap-libinput libinput)))
+(define-libinput-procedure
+  (libinput-dispatch libinput)
+  (ffi:int "libinput_dispatch" (list '*))
+  (% (unwrap-libinput libinput)))
+(define-libinput-procedure
+  (libinput-get-event libinput)
+  ('* "libinput_get_event" (list '*))
+  (wrap-libinput-event (% (unwrap-libinput libinput))))
+(define-libinput-procedure
+  (libinput-next-event-type libinput)
+  (ffi:int32 "libinput_next_event_type" (list '*))
+  (number->%libinput-event-type-enum (% (unwrap-libinput libinput))))
+(define-libinput-procedure
+  (libinput-set-user-data libinput user_data)
+  (ffi:void "libinput_set_user_data" (list '* '*))
+  (% (unwrap-libinput libinput) user_data))
+(define-libinput-procedure
+  (libinput-get-user-data libinput)
+  ('* "libinput_get_user_data" (list '*))
+  (% (unwrap-libinput libinput)))
+(define-libinput-procedure
+  (libinput-resume libinput)
+  (ffi:int "libinput_resume" (list '*))
+  (% (unwrap-libinput libinput)))
+(define-libinput-procedure
+  (libinput-suspend libinput)
+  (ffi:void "libinput_suspend" (list '*))
+  (% (unwrap-libinput libinput)))
+(define-libinput-procedure
+  (libinput-ref libinput)
+  ('* "libinput_ref" (list '*))
+  (wrap-libinput (% (unwrap-libinput libinput))))
+(define-libinput-procedure
+  (libinput-unref libinput)
+  ('* "libinput_unref" (list '*))
+  (wrap-libinput (% (unwrap-libinput libinput))))
+(define-libinput-procedure
+  (libinput-log-set-priority libinput priority)
+  (ffi:void "libinput_log_set_priority" (list '* ffi:int32))
+  (% (unwrap-libinput libinput)
+     (%libinput-log-priority-enum->number priority)))
+(define-libinput-procedure
+  (libinput-log-get-priority libinput)
+  (ffi:int32 "libinput_log_get_priority" (list '*))
+  (number->%libinput-log-priority-enum (% (unwrap-libinput libinput))))
 (define-public libinput_log_handler (bs:pointer '*))
-(define-public libinput-log-set-handler
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func "libinput_log_set_handler" (force %libinput))
-                 (list '* '*))))
-    (lambda (libinput log_handler)
-      (%func (unwrap-libinput libinput) log_handler))))
-(define-public libinput-seat-ref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_seat_ref" (force %libinput))
-                 (list '*))))
-    (lambda (seat) (wrap-libinput-seat (%func (unwrap-libinput-seat seat))))))
-(define-public libinput-seat-unref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_seat_unref" (force %libinput))
-                 (list '*))))
-    (lambda (seat) (wrap-libinput-seat (%func (unwrap-libinput-seat seat))))))
-(define-public libinput-seat-set-user-data
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func "libinput_seat_set_user_data" (force %libinput))
-                 (list '* '*))))
-    (lambda (seat user_data) (%func (unwrap-libinput-seat seat) user_data))))
-(define-public libinput-seat-get-user-data
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_seat_get_user_data" (force %libinput))
-                 (list '*))))
-    (lambda (seat) (%func (unwrap-libinput-seat seat)))))
-(define-public libinput-seat-get-context
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_seat_get_context" (force %libinput))
-                 (list '*))))
-    (lambda (seat) (wrap-libinput (%func (unwrap-libinput-seat seat))))))
-(define-public libinput-seat-get-physical-name
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_seat_get_physical_name"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (seat) (pointer->string* (%func (unwrap-libinput-seat seat))))))
-(define-public libinput-seat-get-logical-name
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_seat_get_logical_name"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (seat) (pointer->string* (%func (unwrap-libinput-seat seat))))))
-(define-public libinput-device-ref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_device_ref" (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (wrap-libinput-device (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-unref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_device_unref" (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (wrap-libinput-device (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-set-user-data
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func
-                   "libinput_device_set_user_data"
-                   (force %libinput))
-                 (list '* '*))))
-    (lambda (device user_data)
-      (%func (unwrap-libinput-device device) user_data))))
-(define-public libinput-device-get-user-data
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_device_get_user_data"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-get-context
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_device_get_context" (force %libinput))
-                 (list '*))))
-    (lambda (device) (wrap-libinput (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-get-device-group
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_device_get_device_group"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (wrap-libinput-device-group (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-get-sysname
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_device_get_sysname" (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (pointer->string* (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-get-name
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_device_get_name" (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (pointer->string* (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-get-id-product
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_device_get_id_product"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-get-id-vendor
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_device_get_id_vendor"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-get-output-name
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_device_get_output_name"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (pointer->string* (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-get-seat
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_device_get_seat" (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (wrap-libinput-seat (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-set-seat-logical-name
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_set_seat_logical_name"
-                   (force %libinput))
-                 (list '* '*))))
-    (lambda (device name)
-      (%func (unwrap-libinput-device device) (ffi:string->pointer name)))))
-(define-public libinput-device-get-udev-device
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_device_get_udev_device"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-led-update
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func "libinput_device_led_update" (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device leds)
-      (%func (unwrap-libinput-device device)
-             (%libinput-led-enum->number leds)))))
-(define-public libinput-device-has-capability
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_has_capability"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device capability)
-      (%func (unwrap-libinput-device device)
-             (%libinput-device-capability-enum->number capability)))))
-(define-public libinput-device-get-size
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func "libinput_device_get_size" (force %libinput))
-                 (list '* '* '*))))
-    (lambda (device width height)
-      (%func (unwrap-libinput-device device) width height))))
-(define-public libinput-device-pointer-has-button
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_pointer_has_button"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (device code) (%func (unwrap-libinput-device device) code))))
-(define-public libinput-device-keyboard-has-key
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_keyboard_has_key"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (device code) (%func (unwrap-libinput-device device) code))))
-(define-public libinput-device-touch-get-touch-count
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_touch_get_touch_count"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-switch-has-switch
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_switch_has_switch"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device sw)
-      (%func (unwrap-libinput-device device)
-             (%libinput-switch-enum->number sw)))))
-(define-public libinput-device-tablet-pad-get-num-buttons
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_tablet_pad_get_num_buttons"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-tablet-pad-get-num-rings
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_tablet_pad_get_num_rings"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-tablet-pad-get-num-strips
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_tablet_pad_get_num_strips"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-tablet-pad-has-key
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_tablet_pad_has_key"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (device code) (%func (unwrap-libinput-device device) code))))
-(define-public libinput-device-group-ref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_device_group_ref" (force %libinput))
-                 (list '*))))
-    (lambda (group)
-      (wrap-libinput-device-group
-        (%func (unwrap-libinput-device-group group))))))
-(define-public libinput-device-group-unref
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func "libinput_device_group_unref" (force %libinput))
-                 (list '*))))
-    (lambda (group)
-      (wrap-libinput-device-group
-        (%func (unwrap-libinput-device-group group))))))
-(define-public libinput-device-group-set-user-data
-  (let ((%func (ffi:pointer->procedure
-                 ffi:void
-                 (dynamic-func
-                   "libinput_device_group_set_user_data"
-                   (force %libinput))
-                 (list '* '*))))
-    (lambda (group user_data)
-      (%func (unwrap-libinput-device-group group) user_data))))
-(define-public libinput-device-group-get-user-data
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_device_group_get_user_data"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (group) (%func (unwrap-libinput-device-group group)))))
+(define-libinput-procedure
+  (libinput-log-set-handler libinput log_handler)
+  (ffi:void "libinput_log_set_handler" (list '* '*))
+  (% (unwrap-libinput libinput) log_handler))
+(define-libinput-procedure
+  (libinput-seat-ref seat)
+  ('* "libinput_seat_ref" (list '*))
+  (wrap-libinput-seat (% (unwrap-libinput-seat seat))))
+(define-libinput-procedure
+  (libinput-seat-unref seat)
+  ('* "libinput_seat_unref" (list '*))
+  (wrap-libinput-seat (% (unwrap-libinput-seat seat))))
+(define-libinput-procedure
+  (libinput-seat-set-user-data seat user_data)
+  (ffi:void "libinput_seat_set_user_data" (list '* '*))
+  (% (unwrap-libinput-seat seat) user_data))
+(define-libinput-procedure
+  (libinput-seat-get-user-data seat)
+  ('* "libinput_seat_get_user_data" (list '*))
+  (% (unwrap-libinput-seat seat)))
+(define-libinput-procedure
+  (libinput-seat-get-context seat)
+  ('* "libinput_seat_get_context" (list '*))
+  (wrap-libinput (% (unwrap-libinput-seat seat))))
+(define-libinput-procedure
+  (libinput-seat-get-physical-name seat)
+  ('* "libinput_seat_get_physical_name" (list '*))
+  (pointer->string* (% (unwrap-libinput-seat seat))))
+(define-libinput-procedure
+  (libinput-seat-get-logical-name seat)
+  ('* "libinput_seat_get_logical_name" (list '*))
+  (pointer->string* (% (unwrap-libinput-seat seat))))
+(define-libinput-procedure
+  (libinput-device-ref device)
+  ('* "libinput_device_ref" (list '*))
+  (wrap-libinput-device (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-unref device)
+  ('* "libinput_device_unref" (list '*))
+  (wrap-libinput-device (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-set-user-data device user_data)
+  (ffi:void "libinput_device_set_user_data" (list '* '*))
+  (% (unwrap-libinput-device device) user_data))
+(define-libinput-procedure
+  (libinput-device-get-user-data device)
+  ('* "libinput_device_get_user_data" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-get-context device)
+  ('* "libinput_device_get_context" (list '*))
+  (wrap-libinput (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-get-device-group device)
+  ('* "libinput_device_get_device_group" (list '*))
+  (wrap-libinput-device-group (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-get-sysname device)
+  ('* "libinput_device_get_sysname" (list '*))
+  (pointer->string* (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-get-name device)
+  ('* "libinput_device_get_name" (list '*))
+  (pointer->string* (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-get-id-product device)
+  (ffi:unsigned-int "libinput_device_get_id_product" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-get-id-vendor device)
+  (ffi:unsigned-int "libinput_device_get_id_vendor" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-get-output-name device)
+  ('* "libinput_device_get_output_name" (list '*))
+  (pointer->string* (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-get-seat device)
+  ('* "libinput_device_get_seat" (list '*))
+  (wrap-libinput-seat (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-set-seat-logical-name device name)
+  (ffi:int "libinput_device_set_seat_logical_name" (list '* '*))
+  (% (unwrap-libinput-device device) (ffi:string->pointer name)))
+(define-libinput-procedure
+  (libinput-device-get-udev-device device)
+  ('* "libinput_device_get_udev_device" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-led-update device leds)
+  (ffi:void "libinput_device_led_update" (list '* ffi:int32))
+  (% (unwrap-libinput-device device) (%libinput-led-enum->number leds)))
+(define-libinput-procedure
+  (libinput-device-has-capability device capability)
+  (ffi:int "libinput_device_has_capability" (list '* ffi:int32))
+  (% (unwrap-libinput-device device)
+     (%libinput-device-capability-enum->number capability)))
+(define-libinput-procedure
+  (libinput-device-get-size device width height)
+  (ffi:int "libinput_device_get_size" (list '* '* '*))
+  (% (unwrap-libinput-device device) width height))
+(define-libinput-procedure
+  (libinput-device-pointer-has-button device code)
+  (ffi:int "libinput_device_pointer_has_button" (list '* ffi:uint32))
+  (% (unwrap-libinput-device device) code))
+(define-libinput-procedure
+  (libinput-device-keyboard-has-key device code)
+  (ffi:int "libinput_device_keyboard_has_key" (list '* ffi:uint32))
+  (% (unwrap-libinput-device device) code))
+(define-libinput-procedure
+  (libinput-device-touch-get-touch-count device)
+  (ffi:int "libinput_device_touch_get_touch_count" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-switch-has-switch device sw)
+  (ffi:int "libinput_device_switch_has_switch" (list '* ffi:int32))
+  (% (unwrap-libinput-device device) (%libinput-switch-enum->number sw)))
+(define-libinput-procedure
+  (libinput-device-tablet-pad-get-num-buttons device)
+  (ffi:int "libinput_device_tablet_pad_get_num_buttons" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-tablet-pad-get-num-rings device)
+  (ffi:int "libinput_device_tablet_pad_get_num_rings" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-tablet-pad-get-num-strips device)
+  (ffi:int "libinput_device_tablet_pad_get_num_strips" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-tablet-pad-has-key device code)
+  (ffi:int "libinput_device_tablet_pad_has_key" (list '* ffi:uint32))
+  (% (unwrap-libinput-device device) code))
+(define-libinput-procedure
+  (libinput-device-group-ref group)
+  ('* "libinput_device_group_ref" (list '*))
+  (wrap-libinput-device-group (% (unwrap-libinput-device-group group))))
+(define-libinput-procedure
+  (libinput-device-group-unref group)
+  ('* "libinput_device_group_unref" (list '*))
+  (wrap-libinput-device-group (% (unwrap-libinput-device-group group))))
+(define-libinput-procedure
+  (libinput-device-group-set-user-data group user_data)
+  (ffi:void "libinput_device_group_set_user_data" (list '* '*))
+  (% (unwrap-libinput-device-group group) user_data))
+(define-libinput-procedure
+  (libinput-device-group-get-user-data group)
+  ('* "libinput_device_group_get_user_data" (list '*))
+  (% (unwrap-libinput-device-group group)))
 (begin
   (define-public %libinput-config-status-enum
     (bs:enum
@@ -2163,16 +1380,10 @@
         (error "not found" '%libinput-config-status-enum o)))
   (define-public (%libinput-config-status-enum->number o)
     (bs:enum->integer %libinput-config-status-enum o)))
-(define-public libinput-config-status-to-str
-  (let ((%func (ffi:pointer->procedure
-                 '*
-                 (dynamic-func
-                   "libinput_config_status_to_str"
-                   (force %libinput))
-                 (list ffi:int32))))
-    (lambda (status)
-      (pointer->string*
-        (%func (%libinput-config-status-enum->number status))))))
+(define-libinput-procedure
+  (libinput-config-status-to-str status)
+  ('* "libinput_config_status_to_str" (list ffi:int32))
+  (pointer->string* (% (%libinput-config-status-enum->number status))))
 (begin
   (define-public %libinput-config-tap-state-enum
     (bs:enum
@@ -2186,45 +1397,26 @@
         (error "not found" '%libinput-config-tap-state-enum o)))
   (define-public (%libinput-config-tap-state-enum->number o)
     (bs:enum->integer %libinput-config-tap-state-enum o)))
-(define-public libinput-device-config-tap-get-finger-count
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_tap_get_finger_count"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-tap-set-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_set_enabled"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device enable)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-tap-state-enum->number enable))))))
-(define-public libinput-device-config-tap-get-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_get_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-tap-state-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-tap-get-default-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_get_default_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-tap-state-enum
-        (%func (unwrap-libinput-device device))))))
+(define-libinput-procedure
+  (libinput-device-config-tap-get-finger-count device)
+  (ffi:int "libinput_device_config_tap_get_finger_count" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-tap-set-enabled device enable)
+  (ffi:int32 "libinput_device_config_tap_set_enabled" (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-tap-state-enum->number enable))))
+(define-libinput-procedure
+  (libinput-device-config-tap-get-enabled device)
+  (ffi:int32 "libinput_device_config_tap_get_enabled" (list '*))
+  (number->%libinput-config-tap-state-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-tap-get-default-enabled device)
+  (ffi:int32 "libinput_device_config_tap_get_default_enabled" (list '*))
+  (number->%libinput-config-tap-state-enum
+    (% (unwrap-libinput-device device))))
 (begin
   (define-public %libinput-config-tap-button-map-enum
     (bs:enum
@@ -2238,37 +1430,22 @@
         (error "not found" '%libinput-config-tap-button-map-enum o)))
   (define-public (%libinput-config-tap-button-map-enum->number o)
     (bs:enum->integer %libinput-config-tap-button-map-enum o)))
-(define-public libinput-device-config-tap-set-button-map
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_set_button_map"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device map)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-tap-button-map-enum->number map))))))
-(define-public libinput-device-config-tap-get-button-map
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_get_button_map"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-tap-button-map-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-tap-get-default-button-map
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_get_default_button_map"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-tap-button-map-enum
-        (%func (unwrap-libinput-device device))))))
+(define-libinput-procedure
+  (libinput-device-config-tap-set-button-map device map)
+  (ffi:int32 "libinput_device_config_tap_set_button_map" (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-tap-button-map-enum->number map))))
+(define-libinput-procedure
+  (libinput-device-config-tap-get-button-map device)
+  (ffi:int32 "libinput_device_config_tap_get_button_map" (list '*))
+  (number->%libinput-config-tap-button-map-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-tap-get-default-button-map device)
+  (ffi:int32 "libinput_device_config_tap_get_default_button_map" (list '*))
+  (number->%libinput-config-tap-button-map-enum
+    (% (unwrap-libinput-device device))))
 (begin
   (define-public %libinput-config-drag-state-enum
     (bs:enum
@@ -2282,37 +1459,22 @@
         (error "not found" '%libinput-config-drag-state-enum o)))
   (define-public (%libinput-config-drag-state-enum->number o)
     (bs:enum->integer %libinput-config-drag-state-enum o)))
-(define-public libinput-device-config-tap-set-drag-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_set_drag_enabled"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device enable)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-drag-state-enum->number enable))))))
-(define-public libinput-device-config-tap-get-drag-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_get_drag_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-drag-state-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-tap-get-default-drag-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_get_default_drag_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-drag-state-enum
-        (%func (unwrap-libinput-device device))))))
+(define-libinput-procedure
+  (libinput-device-config-tap-set-drag-enabled device enable)
+  (ffi:int32 "libinput_device_config_tap_set_drag_enabled" (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-drag-state-enum->number enable))))
+(define-libinput-procedure
+  (libinput-device-config-tap-get-drag-enabled device)
+  (ffi:int32 "libinput_device_config_tap_get_drag_enabled" (list '*))
+  (number->%libinput-config-drag-state-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-tap-get-default-drag-enabled device)
+  (ffi:int32 "libinput_device_config_tap_get_default_drag_enabled" (list '*))
+  (number->%libinput-config-drag-state-enum
+    (% (unwrap-libinput-device device))))
 (begin
   (define-public %libinput-config-drag-lock-state-enum
     (bs:enum
@@ -2328,94 +1490,66 @@
         (error "not found" '%libinput-config-drag-lock-state-enum o)))
   (define-public (%libinput-config-drag-lock-state-enum->number o)
     (bs:enum->integer %libinput-config-drag-lock-state-enum o)))
-(define-public libinput-device-config-tap-set-drag-lock-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_set_drag_lock_enabled"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device enable)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-drag-lock-state-enum->number enable))))))
-(define-public libinput-device-config-tap-get-drag-lock-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_get_drag_lock_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-drag-lock-state-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-tap-get-default-drag-lock-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_tap_get_default_drag_lock_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-drag-lock-state-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-calibration-has-matrix
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_calibration_has_matrix"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-calibration-set-matrix
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_calibration_set_matrix"
-                   (force %libinput))
-                 (list '* '*))))
-    (lambda (device matrix)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               ((lambda (a)
-                  (ffi:bytevector->pointer
-                    (bytestructure-bytevector
-                      (bytestructure
-                        (bs:vector 6 float)
-                        (cond ((vector? a) a) ((list? a) (list->vector a)))))))
-                matrix))))))
-(define-public libinput-device-config-calibration-get-matrix
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_calibration_get_matrix"
-                   (force %libinput))
-                 (list '* '*))))
-    (lambda (device matrix)
-      (%func (unwrap-libinput-device device)
-             ((lambda (a)
-                (ffi:bytevector->pointer
-                  (bytestructure-bytevector
-                    (bytestructure
-                      (bs:vector 6 float)
-                      (cond ((vector? a) a) ((list? a) (list->vector a)))))))
-              matrix)))))
-(define-public libinput-device-config-calibration-get-default-matrix
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_calibration_get_default_matrix"
-                   (force %libinput))
-                 (list '* '*))))
-    (lambda (device matrix)
-      (%func (unwrap-libinput-device device)
-             ((lambda (a)
-                (ffi:bytevector->pointer
-                  (bytestructure-bytevector
-                    (bytestructure
-                      (bs:vector 6 float)
-                      (cond ((vector? a) a) ((list? a) (list->vector a)))))))
-              matrix)))))
+(define-libinput-procedure
+  (libinput-device-config-tap-set-drag-lock-enabled device enable)
+  (ffi:int32
+    "libinput_device_config_tap_set_drag_lock_enabled"
+    (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-drag-lock-state-enum->number enable))))
+(define-libinput-procedure
+  (libinput-device-config-tap-get-drag-lock-enabled device)
+  (ffi:int32 "libinput_device_config_tap_get_drag_lock_enabled" (list '*))
+  (number->%libinput-config-drag-lock-state-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-tap-get-default-drag-lock-enabled device)
+  (ffi:int32
+    "libinput_device_config_tap_get_default_drag_lock_enabled"
+    (list '*))
+  (number->%libinput-config-drag-lock-state-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-calibration-has-matrix device)
+  (ffi:int "libinput_device_config_calibration_has_matrix" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-calibration-set-matrix device matrix)
+  (ffi:int32 "libinput_device_config_calibration_set_matrix" (list '* '*))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       ((lambda (a)
+          (ffi:bytevector->pointer
+            (bytestructure-bytevector
+              (bytestructure
+                (bs:vector 6 float)
+                (cond ((vector? a) a) ((list? a) (list->vector a)))))))
+        matrix))))
+(define-libinput-procedure
+  (libinput-device-config-calibration-get-matrix device matrix)
+  (ffi:int "libinput_device_config_calibration_get_matrix" (list '* '*))
+  (% (unwrap-libinput-device device)
+     ((lambda (a)
+        (ffi:bytevector->pointer
+          (bytestructure-bytevector
+            (bytestructure
+              (bs:vector 6 float)
+              (cond ((vector? a) a) ((list? a) (list->vector a)))))))
+      matrix)))
+(define-libinput-procedure
+  (libinput-device-config-calibration-get-default-matrix device matrix)
+  (ffi:int
+    "libinput_device_config_calibration_get_default_matrix"
+    (list '* '*))
+  (% (unwrap-libinput-device device)
+     ((lambda (a)
+        (ffi:bytevector->pointer
+          (bytestructure-bytevector
+            (bytestructure
+              (bs:vector 6 float)
+              (cond ((vector? a) a) ((list? a) (list->vector a)))))))
+      matrix)))
 (begin
   (define-public %libinput-config-send-events-mode-enum
     (bs:enum
@@ -2434,74 +1568,42 @@
         (error "not found" '%libinput-config-send-events-mode-enum o)))
   (define-public (%libinput-config-send-events-mode-enum->number o)
     (bs:enum->integer %libinput-config-send-events-mode-enum o)))
-(define-public libinput-device-config-send-events-get-modes
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_device_config_send_events_get_modes"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-send-events-set-mode
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_send_events_set_mode"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (device mode)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device) mode)))))
-(define-public libinput-device-config-send-events-get-mode
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_device_config_send_events_get_mode"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-send-events-get-default-mode
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_device_config_send_events_get_default_mode"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-accel-is-available
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_accel_is_available"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-accel-set-speed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_accel_set_speed"
-                   (force %libinput))
-                 (list '* ffi:double))))
-    (lambda (device speed)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device) speed)))))
-(define-public libinput-device-config-accel-get-speed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_device_config_accel_get_speed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-accel-get-default-speed
-  (let ((%func (ffi:pointer->procedure
-                 ffi:double
-                 (dynamic-func
-                   "libinput_device_config_accel_get_default_speed"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+(define-libinput-procedure
+  (libinput-device-config-send-events-get-modes device)
+  (ffi:uint32 "libinput_device_config_send_events_get_modes" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-send-events-set-mode device mode)
+  (ffi:int32
+    "libinput_device_config_send_events_set_mode"
+    (list '* ffi:uint32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device) mode)))
+(define-libinput-procedure
+  (libinput-device-config-send-events-get-mode device)
+  (ffi:uint32 "libinput_device_config_send_events_get_mode" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-send-events-get-default-mode device)
+  (ffi:uint32 "libinput_device_config_send_events_get_default_mode" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-accel-is-available device)
+  (ffi:int "libinput_device_config_accel_is_available" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-accel-set-speed device speed)
+  (ffi:int32 "libinput_device_config_accel_set_speed" (list '* ffi:double))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device) speed)))
+(define-libinput-procedure
+  (libinput-device-config-accel-get-speed device)
+  (ffi:double "libinput_device_config_accel_get_speed" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-accel-get-default-speed device)
+  (ffi:double "libinput_device_config_accel_get_default_speed" (list '*))
+  (% (unwrap-libinput-device device)))
 (begin
   (define-public %libinput-config-accel-profile-enum
     (bs:enum
@@ -2520,113 +1622,66 @@
         (error "not found" '%libinput-config-accel-profile-enum o)))
   (define-public (%libinput-config-accel-profile-enum->number o)
     (bs:enum->integer %libinput-config-accel-profile-enum o)))
-(define-public libinput-device-config-accel-get-profiles
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_device_config_accel_get_profiles"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-accel-set-profile
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_accel_set_profile"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device profile)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-accel-profile-enum->number profile))))))
-(define-public libinput-device-config-accel-get-profile
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_accel_get_profile"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-accel-profile-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-accel-get-default-profile
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_accel_get_default_profile"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-accel-profile-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-scroll-has-natural-scroll
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_scroll_has_natural_scroll"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-scroll-set-natural-scroll-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_scroll_set_natural_scroll_enabled"
-                   (force %libinput))
-                 (list '* ffi:int))))
-    (lambda (device enable)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device) enable)))))
-(define-public libinput-device-config-scroll-get-natural-scroll-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_scroll_get_natural_scroll_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-scroll-get-default-natural-scroll-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_scroll_get_default_natural_scroll_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-left-handed-is-available
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_left_handed_is_available"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-left-handed-set
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_left_handed_set"
-                   (force %libinput))
-                 (list '* ffi:int))))
-    (lambda (device left_handed)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device) left_handed)))))
-(define-public libinput-device-config-left-handed-get
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_left_handed_get"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-left-handed-get-default
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_left_handed_get_default"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+(define-libinput-procedure
+  (libinput-device-config-accel-get-profiles device)
+  (ffi:uint32 "libinput_device_config_accel_get_profiles" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-accel-set-profile device profile)
+  (ffi:int32 "libinput_device_config_accel_set_profile" (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-accel-profile-enum->number profile))))
+(define-libinput-procedure
+  (libinput-device-config-accel-get-profile device)
+  (ffi:int32 "libinput_device_config_accel_get_profile" (list '*))
+  (number->%libinput-config-accel-profile-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-accel-get-default-profile device)
+  (ffi:int32 "libinput_device_config_accel_get_default_profile" (list '*))
+  (number->%libinput-config-accel-profile-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-scroll-has-natural-scroll device)
+  (ffi:int "libinput_device_config_scroll_has_natural_scroll" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-scroll-set-natural-scroll-enabled device enable)
+  (ffi:int32
+    "libinput_device_config_scroll_set_natural_scroll_enabled"
+    (list '* ffi:int))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device) enable)))
+(define-libinput-procedure
+  (libinput-device-config-scroll-get-natural-scroll-enabled device)
+  (ffi:int
+    "libinput_device_config_scroll_get_natural_scroll_enabled"
+    (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-scroll-get-default-natural-scroll-enabled device)
+  (ffi:int
+    "libinput_device_config_scroll_get_default_natural_scroll_enabled"
+    (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-left-handed-is-available device)
+  (ffi:int "libinput_device_config_left_handed_is_available" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-left-handed-set device left_handed)
+  (ffi:int32 "libinput_device_config_left_handed_set" (list '* ffi:int))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device) left_handed)))
+(define-libinput-procedure
+  (libinput-device-config-left-handed-get device)
+  (ffi:int "libinput_device_config_left_handed_get" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-left-handed-get-default device)
+  (ffi:int "libinput_device_config_left_handed_get_default" (list '*))
+  (% (unwrap-libinput-device device)))
 (begin
   (define-public %libinput-config-click-method-enum
     (bs:enum
@@ -2645,45 +1700,26 @@
         (error "not found" '%libinput-config-click-method-enum o)))
   (define-public (%libinput-config-click-method-enum->number o)
     (bs:enum->integer %libinput-config-click-method-enum o)))
-(define-public libinput-device-config-click-get-methods
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_device_config_click_get_methods"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-click-set-method
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_click_set_method"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device method)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-click-method-enum->number method))))))
-(define-public libinput-device-config-click-get-method
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_click_get_method"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-click-method-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-click-get-default-method
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_click_get_default_method"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-click-method-enum
-        (%func (unwrap-libinput-device device))))))
+(define-libinput-procedure
+  (libinput-device-config-click-get-methods device)
+  (ffi:uint32 "libinput_device_config_click_get_methods" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-click-set-method device method)
+  (ffi:int32 "libinput_device_config_click_set_method" (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-click-method-enum->number method))))
+(define-libinput-procedure
+  (libinput-device-config-click-get-method device)
+  (ffi:int32 "libinput_device_config_click_get_method" (list '*))
+  (number->%libinput-config-click-method-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-click-get-default-method device)
+  (ffi:int32 "libinput_device_config_click_get_default_method" (list '*))
+  (number->%libinput-config-click-method-enum
+    (% (unwrap-libinput-device device))))
 (begin
   (define-public %libinput-config-middle-emulation-state-enum
     (bs:enum
@@ -2699,46 +1735,30 @@
         (error "not found" '%libinput-config-middle-emulation-state-enum o)))
   (define-public (%libinput-config-middle-emulation-state-enum->number o)
     (bs:enum->integer %libinput-config-middle-emulation-state-enum o)))
-(define-public libinput-device-config-middle-emulation-is-available
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_middle_emulation_is_available"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-middle-emulation-set-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_middle_emulation_set_enabled"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device enable)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-middle-emulation-state-enum->number
-                 enable))))))
-(define-public libinput-device-config-middle-emulation-get-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_middle_emulation_get_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-middle-emulation-state-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-middle-emulation-get-default-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_middle_emulation_get_default_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-middle-emulation-state-enum
-        (%func (unwrap-libinput-device device))))))
+(define-libinput-procedure
+  (libinput-device-config-middle-emulation-is-available device)
+  (ffi:int "libinput_device_config_middle_emulation_is_available" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-middle-emulation-set-enabled device enable)
+  (ffi:int32
+    "libinput_device_config_middle_emulation_set_enabled"
+    (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-middle-emulation-state-enum->number enable))))
+(define-libinput-procedure
+  (libinput-device-config-middle-emulation-get-enabled device)
+  (ffi:int32 "libinput_device_config_middle_emulation_get_enabled" (list '*))
+  (number->%libinput-config-middle-emulation-state-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-middle-emulation-get-default-enabled device)
+  (ffi:int32
+    "libinput_device_config_middle_emulation_get_default_enabled"
+    (list '*))
+  (number->%libinput-config-middle-emulation-state-enum
+    (% (unwrap-libinput-device device))))
 (begin
   (define-public %libinput-config-scroll-method-enum
     (bs:enum
@@ -2760,71 +1780,39 @@
         (error "not found" '%libinput-config-scroll-method-enum o)))
   (define-public (%libinput-config-scroll-method-enum->number o)
     (bs:enum->integer %libinput-config-scroll-method-enum o)))
-(define-public libinput-device-config-scroll-get-methods
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_device_config_scroll_get_methods"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-scroll-set-method
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_scroll_set_method"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device method)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-scroll-method-enum->number method))))))
-(define-public libinput-device-config-scroll-get-method
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_scroll_get_method"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-scroll-method-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-scroll-get-default-method
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_scroll_get_default_method"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-scroll-method-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-scroll-set-button
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_scroll_set_button"
-                   (force %libinput))
-                 (list '* ffi:uint32))))
-    (lambda (device button)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device) button)))))
-(define-public libinput-device-config-scroll-get-button
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_device_config_scroll_get_button"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-scroll-get-default-button
-  (let ((%func (ffi:pointer->procedure
-                 ffi:uint32
-                 (dynamic-func
-                   "libinput_device_config_scroll_get_default_button"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+(define-libinput-procedure
+  (libinput-device-config-scroll-get-methods device)
+  (ffi:uint32 "libinput_device_config_scroll_get_methods" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-scroll-set-method device method)
+  (ffi:int32 "libinput_device_config_scroll_set_method" (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-scroll-method-enum->number method))))
+(define-libinput-procedure
+  (libinput-device-config-scroll-get-method device)
+  (ffi:int32 "libinput_device_config_scroll_get_method" (list '*))
+  (number->%libinput-config-scroll-method-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-scroll-get-default-method device)
+  (ffi:int32 "libinput_device_config_scroll_get_default_method" (list '*))
+  (number->%libinput-config-scroll-method-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-scroll-set-button device button)
+  (ffi:int32 "libinput_device_config_scroll_set_button" (list '* ffi:uint32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device) button)))
+(define-libinput-procedure
+  (libinput-device-config-scroll-get-button device)
+  (ffi:uint32 "libinput_device_config_scroll_get_button" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-scroll-get-default-button device)
+  (ffi:uint32 "libinput_device_config_scroll_get_default_button" (list '*))
+  (% (unwrap-libinput-device device)))
 (begin
   (define-public %libinput-config-scroll-button-lock-state-enum
     (bs:enum
@@ -2840,38 +1828,24 @@
         (error "not found" '%libinput-config-scroll-button-lock-state-enum o)))
   (define-public (%libinput-config-scroll-button-lock-state-enum->number o)
     (bs:enum->integer %libinput-config-scroll-button-lock-state-enum o)))
-(define-public libinput-device-config-scroll-set-button-lock
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_scroll_set_button_lock"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device state)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-scroll-button-lock-state-enum->number
-                 state))))))
-(define-public libinput-device-config-scroll-get-button-lock
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_scroll_get_button_lock"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-scroll-button-lock-state-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-scroll-get-default-button-lock
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_scroll_get_default_button_lock"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-scroll-button-lock-state-enum
-        (%func (unwrap-libinput-device device))))))
+(define-libinput-procedure
+  (libinput-device-config-scroll-set-button-lock device state)
+  (ffi:int32
+    "libinput_device_config_scroll_set_button_lock"
+    (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-scroll-button-lock-state-enum->number state))))
+(define-libinput-procedure
+  (libinput-device-config-scroll-get-button-lock device)
+  (ffi:int32 "libinput_device_config_scroll_get_button_lock" (list '*))
+  (number->%libinput-config-scroll-button-lock-state-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-scroll-get-default-button-lock device)
+  (ffi:int32 "libinput_device_config_scroll_get_default_button_lock" (list '*))
+  (number->%libinput-config-scroll-button-lock-state-enum
+    (% (unwrap-libinput-device device))))
 (begin
   (define-public %libinput-config-dwt-state-enum
     (bs:enum
@@ -2885,76 +1859,44 @@
         (error "not found" '%libinput-config-dwt-state-enum o)))
   (define-public (%libinput-config-dwt-state-enum->number o)
     (bs:enum->integer %libinput-config-dwt-state-enum o)))
-(define-public libinput-device-config-dwt-is-available
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_dwt_is_available"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-dwt-set-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_dwt_set_enabled"
-                   (force %libinput))
-                 (list '* ffi:int32))))
-    (lambda (device enable)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device)
-               (%libinput-config-dwt-state-enum->number enable))))))
-(define-public libinput-device-config-dwt-get-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_dwt_get_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-dwt-state-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-dwt-get-default-enabled
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_dwt_get_default_enabled"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device)
-      (number->%libinput-config-dwt-state-enum
-        (%func (unwrap-libinput-device device))))))
-(define-public libinput-device-config-rotation-is-available
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int
-                 (dynamic-func
-                   "libinput_device_config_rotation_is_available"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-rotation-set-angle
-  (let ((%func (ffi:pointer->procedure
-                 ffi:int32
-                 (dynamic-func
-                   "libinput_device_config_rotation_set_angle"
-                   (force %libinput))
-                 (list '* ffi:unsigned-int))))
-    (lambda (device degrees_cw)
-      (number->%libinput-config-status-enum
-        (%func (unwrap-libinput-device device) degrees_cw)))))
-(define-public libinput-device-config-rotation-get-angle
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_device_config_rotation_get_angle"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
-(define-public libinput-device-config-rotation-get-default-angle
-  (let ((%func (ffi:pointer->procedure
-                 ffi:unsigned-int
-                 (dynamic-func
-                   "libinput_device_config_rotation_get_default_angle"
-                   (force %libinput))
-                 (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+(define-libinput-procedure
+  (libinput-device-config-dwt-is-available device)
+  (ffi:int "libinput_device_config_dwt_is_available" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-dwt-set-enabled device enable)
+  (ffi:int32 "libinput_device_config_dwt_set_enabled" (list '* ffi:int32))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device)
+       (%libinput-config-dwt-state-enum->number enable))))
+(define-libinput-procedure
+  (libinput-device-config-dwt-get-enabled device)
+  (ffi:int32 "libinput_device_config_dwt_get_enabled" (list '*))
+  (number->%libinput-config-dwt-state-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-dwt-get-default-enabled device)
+  (ffi:int32 "libinput_device_config_dwt_get_default_enabled" (list '*))
+  (number->%libinput-config-dwt-state-enum
+    (% (unwrap-libinput-device device))))
+(define-libinput-procedure
+  (libinput-device-config-rotation-is-available device)
+  (ffi:int "libinput_device_config_rotation_is_available" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-rotation-set-angle device degrees_cw)
+  (ffi:int32
+    "libinput_device_config_rotation_set_angle"
+    (list '* ffi:unsigned-int))
+  (number->%libinput-config-status-enum
+    (% (unwrap-libinput-device device) degrees_cw)))
+(define-libinput-procedure
+  (libinput-device-config-rotation-get-angle device)
+  (ffi:unsigned-int "libinput_device_config_rotation_get_angle" (list '*))
+  (% (unwrap-libinput-device device)))
+(define-libinput-procedure
+  (libinput-device-config-rotation-get-default-angle device)
+  (ffi:unsigned-int
+    "libinput_device_config_rotation_get_default_angle"
+    (list '*))
+  (% (unwrap-libinput-device device)))

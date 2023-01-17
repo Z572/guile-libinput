@@ -93,7 +93,7 @@
   (define* (make-bs:struct #:optional fields)
     (if fields
         (with-syntax ((((name value) ...)
-                       (map (lambda (a) `(,(first a) ,(handle-arg/bs (second a))))
+                       (map (lambda (a) `(,(hand (first a) _->-) ,(handle-arg/bs (second a))))
                             fields)))
           #`(bs:struct `((name ,value) ...)))
         #'(bs:unknow)))
@@ -108,7 +108,7 @@
                  %name wrap unwrap is?
                  #,@(if fields
                         (map (lambda (a)
-                               (let* ((v (syntax->datum (car a)))
+                               (let* ((v (_->- (syntax->datum (car a))))
                                       (accessor (symbol-append '. v)))
 
                                  (datum->syntax
@@ -126,7 +126,8 @@
                                   (map
                                    (lambda (a)
                                      (hand (car a)
-                                           (cut symbol-append '. <>)))
+                                           (compose (cut symbol-append '. <>)
+                                                    _->-)))
                                    fields)))
                       #'())))))
 
@@ -198,13 +199,10 @@
                                                          (if o (list o n) n))
                                                        o))
                                               #'((<s-name> <type>) ...))))
-       #`(define-public <func-name>
-           (let ((%func (ffi:pointer->procedure
-                         <ffi:return> (dynamic-func <name> (force %libinput))
-                         (list <ffi:args> ...))))
-             (lambda (<s-name> ...)
-               #,(handle-need-wrap? #'(%func <handled-args> ...)
-                                    #'<return>))))))
+       #`(define-libinput-procedure (<func-name> <s-name> ...)
+           (<ffi:return> <name> (list <ffi:args> ...))
+           #,(handle-need-wrap? #'(% <handled-args> ...)
+                                #'<return>))))
 
     ((function f-name ((s-name type) ...) return :variadic) #f)
     ((function f-name ((type) ...) return) #f)
@@ -246,6 +244,14 @@
                       #:use-module (bytestructures guile)
                       #:use-module (oop goops)
                       #:use-module (libinput config))
+                   `(define-syntax-rule (define-libinput-procedure (name args ...)
+                                          (c-return c-name c-args)
+                                          body ...)
+                      (define-public name
+                        (let ((% (ffi:pointer->procedure c-return c-name c-args)))
+                          (lambda (args ...)
+                            body ...))))
+
                    `(define (pointer->string* ptr)
                       (if (ffi:null-pointer? ptr)
                           #f
