@@ -1,0 +1,4 @@
+(define-module (libinput config)
+  #:export (%libinput))
+
+(define %libinput (delay (dynamic-link "@LIBINPUT_LIBDIR@/libinput.so")))
