@@ -15,58 +15,69 @@
   (make-parameter "c2ffi"))
 
 
-(define (handle-arg x)
-  (match (typedef-remap (syntax->datum x))
-    (':void #'ffi:void)
-    ((':pointer ':char)
-     #''*)
-    ((':pointer ':void)
-     #''*)
-    ((':pointer _)
-     #''*)
-    (':function-pointer
-     #''*)
-    ((':enum _)
-     #'ffi:int)
-    ((':array _ _)
-     #''*)
-    (':int #'ffi:int)
-    (':unsigned-int #'ffi:unsigned-int)
-    (':double #'ffi:double)
-    ('int32_t #'ffi:int32)
-    ('uint32_t #'ffi:uint32)
-    ('uint64_t #'ffi:uint64)
-    ('size_t #'ffi:size_t)
-    (else (error "handle-arg" x))))
+(define (find-ffi a) (first a))
+(define (find-bs a) (second a))
+(define (find-wrap a) (third a))
+(define (find-unwrap a) (fourth a))
+
+(define (h x)
+  (define out
+    (match (typedef-remap (syntax->datum x))
+      (':int (list 'ffi:int ''int #f #f))
+      (':void (list 'ffi:void 'void #f #f))
+      (':unsigned-int (list 'ffi:unsigned-int 'unsigned-int #f #f))
+      (':double (list 'ffi:double 'double #f #f))
+      (':float (list 'ffi:float 'float #f #f))
+      ('int32_t (list 'ffi:int32 'int32 #f #f))
+      ('uint32_t (list 'ffi:uint32 'uint32 #f #f))
+      ('uint64_t (list 'ffi:uint64 'uint64 #f #f))
+      ('size_t (list 'ffi:size_t 'size_t #f #f))
+      ((':enum <name>)
+       (list 'ffi:int32
+             'int32
+             #f
+             (symbol-append (make-%enum-name <name>) '->number)))
+      ((':array <type> <length>)
+       (list ''*
+             `(bs:vector ,<length>
+                         ,(handle-arg/bs (datum->syntax x <type>)) )
+
+             #f ;; TODO
+
+             `(lambda (a)
+                (ffi:bytevector->pointer
+                 (bytestructure-bytevector
+                  (bytestructure
+                   (bs:vector ,<length>
+                              ,(handle-arg/bs
+                                (datum->syntax x <type>)))
+
+                   (cond ((vector? a) a)
+                         ((list? a) (list->vector a)))))))))
+
+      ((':pointer ':char) (list ''* 'cstring-pointer* 'pointer->string* 'ffi:string->pointer))
+      ((':pointer ':void) (list ''* '(bs:pointer 'void) #f #f))
+      ((':pointer ((or 'struct ':struct) <name>))
+       (list ''*
+             `(bs:pointer ,(find-bs-name <name>))
+
+             (find-wrap-name <name>)
+             (find-unwrap-name <name>)))
+      ((':pointer <v>)
+       (list ''*
+             `(bs:pointer ,(handle-arg/bs (datum->syntax x <v>))) #f #f))
+      (':function-pointer
+       (list ''* '(bs:pointer '*) #f #f))
+
+      (else (error "h" x))))
+  (map (lambda (a)
+         (and a (datum->syntax x a))) out))
+
+(define (handle-ffi x)
+  (find-ffi (h x)))
 
 (define (handle-arg/bs x)
-  (match (typedef-remap (syntax->datum x))
-    ('uint32_t #'uint32)
-    ('uint64_t #'uint64)
-    (':void #'void)
-    ((':pointer ':char)
-     #'cstring-pointer*)
-    ((':pointer ':void)
-     #'(bs:pointer 'void))
-    ((':pointer ((or 'struct ':struct) (find-scm-struct o)))
-     #'(bs:pointer o))
-    (':function-pointer
-     #'(bs:pointer '*))
-    ((':array arg length)
-     (datum->syntax
-      x
-      `(bs:vector ,length ,(handle-arg/bs (datum->syntax x arg)) )))
-    ((':enum _)
-     #'int32)
-    (':int #'int)
-    (':float #'float)
-    (':unsigned-int #'unsigned-int)
-
-    ('size_t #'size_t)
-    (else (error "handle-arg/bs" x))
-    ))
-
-
+  (find-bs (h x)))
 
 (define-method (_->- (v <string>))
   (string-replace-substring v "_" "-"))
@@ -87,7 +98,7 @@
           #`(bs:struct `((name ,value) ...)))
         #'(bs:unknow)))
   (let ((base-name (hand name _->-)))
-    (with-syntax ((%name (hand base-name (cut symbol-append '% <> '-struct)))
+    (with-syntax ((%name (hand base-name make-%struct-name))
                   (class-name (hand base-name (cut symbol-append '< <> '>) ))
                   (wrap (hand base-name (cut symbol-append 'wrap- <>)))
                   (unwrap (hand base-name (cut symbol-append 'unwrap- <>)))
@@ -119,6 +130,8 @@
                                    fields)))
                       #'())))))
 
+(define (make-%struct-name o)
+  ((compose _->- (cut symbol-append '% <> '-struct)) o))
 (define (make-%enum-name o)
   ((compose _->- (cut symbol-append '% <> '-enum)) o))
 (define %struct-table (make-hash-table 100))
@@ -127,64 +140,13 @@
 (define (find-scm-struct name)
   (hashq-ref %struct-table name))
 
-(define (find-wrap name)
+(define (find-bs-name name)
+  (and=> (find-scm-struct name) make-%struct-name))
+(define (find-wrap-name name)
   (and=> (find-scm-struct name) (cut symbol-append 'wrap- <>)))
 
-(define (find-unwrap name)
+(define (find-unwrap-name name)
   (and=> (find-scm-struct name) (cut symbol-append 'unwrap- <>)))
-
-(define (unwrap-arg n x)
-  (define o (match (typedef-remap (syntax->datum x))
-              ((':pointer ':char)
-               #'ffi:string->pointer)
-              ((or 'size_t
-                   'uint32_t
-                   ':int
-                   ':unsigned-int
-                   ':void
-                   ':function-pointer
-                   ':double)
-               #f)
-              ((':pointer ':void) #f)
-              ((':pointer ((or 'struct ':struct) o))
-               (datum->syntax
-                x
-                (find-unwrap o)))
-              ((':pointer o)
-               #f)
-              ((':array type length)
-               (datum->syntax
-                x
-                `(lambda (a)
-                   (ffi:bytevector->pointer
-                    (bytestructure-bytevector
-                     (bytestructure
-                      (bs:vector ,length
-                                 ,(handle-arg/bs
-                                   (datum->syntax x type)))
-
-                      (cond ((vector? a) a)
-                            ((list? a) (list->vector a)))))))))
-              ((':enum name)
-               (datum->syntax
-                x
-                (symbol-append (make-%enum-name name) '->number)))
-              (else (error "unwrap-arg" x))))
-  (if o (list o n) n))
-
-(define (wrap-arg n type)
-  (define wrap-func (match (typedef-remap (syntax->datum type))
-                      (':void #f)
-                      ((':pointer ':char)
-                       #'pointer->string*)
-                      ((':pointer ((or 'struct ':struct) o))
-                       (datum->syntax
-                        type
-                        (find-wrap o)))
-                      (o #f)))
-  (if wrap-func
-      (list wrap-func n)
-      n))
 
 ;; typedef
 (define %typedef-table (make-hash-table 20))
@@ -195,6 +157,9 @@
 (define (add-typedef name v)
   (hashq-set! %typedef-table name v))
 
+(define (handle-need-wrap? n x)
+  (define o (find-wrap (h x)))
+  (if o (list o n) n))
 (define (handle-f x)
   (syntax-case x (struct enum function typedef extern)
     ((struct <name>)
@@ -218,31 +183,32 @@
                   (define-public (<->num> o)
                     (bs:enum->integer <scm-enum-name> o))))))
 
-    ((function <name> ((s-name type) ...) return>)
-     (with-syntax ((func-name (hand #'<name> (compose _->- string->symbol)))
-                   ((ffi:args ...) (map handle-arg #'(type ...)))
-                   (ffi:return (handle-arg #'return>))
-                   ((handle-args ...) (map (lambda (o)
-                                             (apply unwrap-arg o))
-                                           #'((s-name type) ...))  ))
-       #`(define-public func-name
+    ((function <name> ((<s-name> <type>) ...) <return>)
+     (with-syntax ((<func-name> (hand #'<name> (compose _->- string->symbol)))
+                   ((<ffi:args> ...) (map handle-ffi #'(<type> ...)))
+                   (<ffi:return> (handle-ffi #'<return>))
+                   ((<handled-args> ...) (map (lambda (o)
+                                                (apply (lambda (n x)
+                                                         (define o (find-unwrap (h x)))
+                                                         (if o (list o n) n))
+                                                       o))
+                                              #'((<s-name> <type>) ...))))
+       #`(define-public <func-name>
            (let ((%func (ffi:pointer->procedure
-                         ffi:return (dynamic-func <name> (force %libinput))
-                         (list ffi:args ...))))
-             (lambda (s-name ...)
-               #,(wrap-arg #'(%func handle-args ...) #'return>))))))
+                         <ffi:return> (dynamic-func <name> (force %libinput))
+                         (list <ffi:args> ...))))
+             (lambda (<s-name> ...)
+               #,(handle-need-wrap? #'(%func <handled-args> ...)
+                                    #'<return>))))))
 
-    ((function f-name ((s-name type) ...) return :variadic)
-     #f)
-    ((function f-name ((type) ...) return)
-     #f)
+    ((function f-name ((s-name type) ...) return :variadic) #f)
+    ((function f-name ((type) ...) return) #f)
 
     ((typedef o f)
      (begin (add-typedef (syntax->datum #'o) (syntax->datum #'f))
             (with-syntax ((ff (handle-arg/bs #'f)))
               #'(define-public o ff))))
-    ((extern o ...)
-     #f)))
+    ((extern o ...) #f)))
 
 (define-method (prefix? (s <string>) (s2 <string>))
   (string-prefix? s s2))
@@ -266,22 +232,23 @@
 (define* (main self #:optional
                (file "/gnu/store/5zvwpqwlgxfi317ly8v52irbvjdhc1np-libinput-1.19.4/include/libinput.h")
                #:rest arg)
-  (pretty-print `(define-module (libinput)
-                   #:use-module (bytestructure-class)
-                   #:use-module ((system foreign) #:prefix ffi:)
-                   #:use-module (bytestructures guile)
-                   #:use-module (oop goops)
-                   #:use-module (libinput config)))
-  (pretty-print `(define (pointer->string* ptr)
-                   (if (ffi:null-pointer? ptr)
-                       #f
-                       (ffi:pointer->string ptr))))
   (for-each (lambda (o)
               (when o
-                (pretty-print (syntax->datum o))))
-            (parameterize ((current-error-port (%make-void-port "w")))
-              (let ((port (open-pipe*
-                           OPEN_READ
-                           (c2ffi-program) "-D" "sexp" file)))
-                (set-port-filename! port #f)
-                (main- port)))))
+                (pretty-print (syntax->datum o) #:max-expr-width 79)))
+            (cons* `(define-module (libinput)
+                      #:use-module (bytestructure-class)
+                      #:use-module ((system foreign) #:prefix ffi:)
+                      #:use-module (bytestructures guile)
+                      #:use-module (oop goops)
+                      #:use-module (libinput config))
+                   `(define (pointer->string* ptr)
+                      (if (ffi:null-pointer? ptr)
+                          #f
+                          (ffi:pointer->string ptr)))
+
+                   (parameterize ((current-error-port (%make-void-port "w")))
+                     (let ((port (open-pipe*
+                                  OPEN_READ
+                                  (c2ffi-program) "-D" "sexp" file)))
+                       (set-port-filename! port #f)
+                       (main- port))))))
