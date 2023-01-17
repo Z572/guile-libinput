@@ -35,7 +35,7 @@
       ((':enum <name>)
        (list 'ffi:int32
              'int32
-             #f
+             (symbol-append 'number-> (make-%enum-name <name>))
              (symbol-append (make-%enum-name <name>) '->number)))
       ((':array <type> <length>)
        (list ''*
@@ -175,12 +175,17 @@
                                       #'((<entry-name> <entry-value>) ...))))
     ((enum <enum-name> (<entry-name> <entry-value>) ...)
      (with-syntax ((<scm-enum-name> (hand #'<enum-name> make-%enum-name)))
-       (with-syntax ((<->num> (hand #'<scm-enum-name>
-                                    (cut symbol-append <> '->number))))
+       (with-syntax ((<num->enum> (hand #'<scm-enum-name>
+                                        (cut symbol-append 'number-> <> )))
+                     (<enum->num> (hand #'<scm-enum-name>
+                                        (cut symbol-append <> '->number))))
          #'(begin (define-public <scm-enum-name>
                     (bs:enum '((<entry-name> <entry-value>) ...)))
                   (define-public <entry-name> <entry-value>) ...
-                  (define-public (<->num> o)
+                  (define-public (<num->enum> o)
+                    (or (assq-ref '((<entry-value> <entry-name>) ...) o)
+                        (error "not found" '<scm-enum-name> o)))
+                  (define-public (<enum->num> o)
                     (bs:enum->integer <scm-enum-name> o))))))
 
     ((function <name> ((<s-name> <type>) ...) <return>)

@@ -129,6 +129,13 @@
   (define-public LIBINPUT_LOG_PRIORITY_DEBUG 10)
   (define-public LIBINPUT_LOG_PRIORITY_INFO 20)
   (define-public LIBINPUT_LOG_PRIORITY_ERROR 30)
+  (define-public (number->%libinput-log-priority-enum o)
+    (or (assq-ref
+          '((10 LIBINPUT_LOG_PRIORITY_DEBUG)
+            (20 LIBINPUT_LOG_PRIORITY_INFO)
+            (30 LIBINPUT_LOG_PRIORITY_ERROR))
+          o)
+        (error "not found" '%libinput-log-priority-enum o)))
   (define-public (%libinput-log-priority-enum->number o)
     (bs:enum->integer %libinput-log-priority-enum o)))
 (begin
@@ -148,6 +155,17 @@
   (define-public LIBINPUT_DEVICE_CAP_TABLET_PAD 4)
   (define-public LIBINPUT_DEVICE_CAP_GESTURE 5)
   (define-public LIBINPUT_DEVICE_CAP_SWITCH 6)
+  (define-public (number->%libinput-device-capability-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_DEVICE_CAP_KEYBOARD)
+            (1 LIBINPUT_DEVICE_CAP_POINTER)
+            (2 LIBINPUT_DEVICE_CAP_TOUCH)
+            (3 LIBINPUT_DEVICE_CAP_TABLET_TOOL)
+            (4 LIBINPUT_DEVICE_CAP_TABLET_PAD)
+            (5 LIBINPUT_DEVICE_CAP_GESTURE)
+            (6 LIBINPUT_DEVICE_CAP_SWITCH))
+          o)
+        (error "not found" '%libinput-device-capability-enum o)))
   (define-public (%libinput-device-capability-enum->number o)
     (bs:enum->integer %libinput-device-capability-enum o)))
 (begin
@@ -156,6 +174,11 @@
       '((LIBINPUT_KEY_STATE_RELEASED 0) (LIBINPUT_KEY_STATE_PRESSED 1))))
   (define-public LIBINPUT_KEY_STATE_RELEASED 0)
   (define-public LIBINPUT_KEY_STATE_PRESSED 1)
+  (define-public (number->%libinput-key-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_KEY_STATE_RELEASED) (1 LIBINPUT_KEY_STATE_PRESSED))
+          o)
+        (error "not found" '%libinput-key-state-enum o)))
   (define-public (%libinput-key-state-enum->number o)
     (bs:enum->integer %libinput-key-state-enum o)))
 (begin
@@ -167,6 +190,13 @@
   (define-public LIBINPUT_LED_NUM_LOCK 1)
   (define-public LIBINPUT_LED_CAPS_LOCK 2)
   (define-public LIBINPUT_LED_SCROLL_LOCK 4)
+  (define-public (number->%libinput-led-enum o)
+    (or (assq-ref
+          '((1 LIBINPUT_LED_NUM_LOCK)
+            (2 LIBINPUT_LED_CAPS_LOCK)
+            (4 LIBINPUT_LED_SCROLL_LOCK))
+          o)
+        (error "not found" '%libinput-led-enum o)))
   (define-public (%libinput-led-enum->number o)
     (bs:enum->integer %libinput-led-enum o)))
 (begin
@@ -175,6 +205,12 @@
       '((LIBINPUT_BUTTON_STATE_RELEASED 0) (LIBINPUT_BUTTON_STATE_PRESSED 1))))
   (define-public LIBINPUT_BUTTON_STATE_RELEASED 0)
   (define-public LIBINPUT_BUTTON_STATE_PRESSED 1)
+  (define-public (number->%libinput-button-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_BUTTON_STATE_RELEASED)
+            (1 LIBINPUT_BUTTON_STATE_PRESSED))
+          o)
+        (error "not found" '%libinput-button-state-enum o)))
   (define-public (%libinput-button-state-enum->number o)
     (bs:enum->integer %libinput-button-state-enum o)))
 (begin
@@ -184,6 +220,12 @@
         (LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL 1))))
   (define-public LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL 0)
   (define-public LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL 1)
+  (define-public (number->%libinput-pointer-axis-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL)
+            (1 LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
+          o)
+        (error "not found" '%libinput-pointer-axis-enum o)))
   (define-public (%libinput-pointer-axis-enum->number o)
     (bs:enum->integer %libinput-pointer-axis-enum o)))
 (begin
@@ -197,6 +239,14 @@
   (define-public LIBINPUT_POINTER_AXIS_SOURCE_FINGER 2)
   (define-public LIBINPUT_POINTER_AXIS_SOURCE_CONTINUOUS 3)
   (define-public LIBINPUT_POINTER_AXIS_SOURCE_WHEEL_TILT 4)
+  (define-public (number->%libinput-pointer-axis-source-enum o)
+    (or (assq-ref
+          '((1 LIBINPUT_POINTER_AXIS_SOURCE_WHEEL)
+            (2 LIBINPUT_POINTER_AXIS_SOURCE_FINGER)
+            (3 LIBINPUT_POINTER_AXIS_SOURCE_CONTINUOUS)
+            (4 LIBINPUT_POINTER_AXIS_SOURCE_WHEEL_TILT))
+          o)
+        (error "not found" '%libinput-pointer-axis-source-enum o)))
   (define-public (%libinput-pointer-axis-source-enum->number o)
     (bs:enum->integer %libinput-pointer-axis-source-enum o)))
 (begin
@@ -206,6 +256,12 @@
         (LIBINPUT_TABLET_PAD_RING_SOURCE_FINGER 2))))
   (define-public LIBINPUT_TABLET_PAD_RING_SOURCE_UNKNOWN 1)
   (define-public LIBINPUT_TABLET_PAD_RING_SOURCE_FINGER 2)
+  (define-public (number->%libinput-tablet-pad-ring-axis-source-enum o)
+    (or (assq-ref
+          '((1 LIBINPUT_TABLET_PAD_RING_SOURCE_UNKNOWN)
+            (2 LIBINPUT_TABLET_PAD_RING_SOURCE_FINGER))
+          o)
+        (error "not found" '%libinput-tablet-pad-ring-axis-source-enum o)))
   (define-public (%libinput-tablet-pad-ring-axis-source-enum->number o)
     (bs:enum->integer %libinput-tablet-pad-ring-axis-source-enum o)))
 (begin
@@ -215,6 +271,12 @@
         (LIBINPUT_TABLET_PAD_STRIP_SOURCE_FINGER 2))))
   (define-public LIBINPUT_TABLET_PAD_STRIP_SOURCE_UNKNOWN 1)
   (define-public LIBINPUT_TABLET_PAD_STRIP_SOURCE_FINGER 2)
+  (define-public (number->%libinput-tablet-pad-strip-axis-source-enum o)
+    (or (assq-ref
+          '((1 LIBINPUT_TABLET_PAD_STRIP_SOURCE_UNKNOWN)
+            (2 LIBINPUT_TABLET_PAD_STRIP_SOURCE_FINGER))
+          o)
+        (error "not found" '%libinput-tablet-pad-strip-axis-source-enum o)))
   (define-public (%libinput-tablet-pad-strip-axis-source-enum->number o)
     (bs:enum->integer %libinput-tablet-pad-strip-axis-source-enum o)))
 (begin
@@ -236,6 +298,18 @@
   (define-public LIBINPUT_TABLET_TOOL_TYPE_MOUSE 6)
   (define-public LIBINPUT_TABLET_TOOL_TYPE_LENS 7)
   (define-public LIBINPUT_TABLET_TOOL_TYPE_TOTEM 8)
+  (define-public (number->%libinput-tablet-tool-type-enum o)
+    (or (assq-ref
+          '((1 LIBINPUT_TABLET_TOOL_TYPE_PEN)
+            (2 LIBINPUT_TABLET_TOOL_TYPE_ERASER)
+            (3 LIBINPUT_TABLET_TOOL_TYPE_BRUSH)
+            (4 LIBINPUT_TABLET_TOOL_TYPE_PENCIL)
+            (5 LIBINPUT_TABLET_TOOL_TYPE_AIRBRUSH)
+            (6 LIBINPUT_TABLET_TOOL_TYPE_MOUSE)
+            (7 LIBINPUT_TABLET_TOOL_TYPE_LENS)
+            (8 LIBINPUT_TABLET_TOOL_TYPE_TOTEM))
+          o)
+        (error "not found" '%libinput-tablet-tool-type-enum o)))
   (define-public (%libinput-tablet-tool-type-enum->number o)
     (bs:enum->integer %libinput-tablet-tool-type-enum o)))
 (begin
@@ -245,6 +319,12 @@
         (LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_IN 1))))
   (define-public LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_OUT 0)
   (define-public LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_IN 1)
+  (define-public (number->%libinput-tablet-tool-proximity-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_OUT)
+            (1 LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_IN))
+          o)
+        (error "not found" '%libinput-tablet-tool-proximity-state-enum o)))
   (define-public (%libinput-tablet-tool-proximity-state-enum->number o)
     (bs:enum->integer %libinput-tablet-tool-proximity-state-enum o)))
 (begin
@@ -253,6 +333,11 @@
       '((LIBINPUT_TABLET_TOOL_TIP_UP 0) (LIBINPUT_TABLET_TOOL_TIP_DOWN 1))))
   (define-public LIBINPUT_TABLET_TOOL_TIP_UP 0)
   (define-public LIBINPUT_TABLET_TOOL_TIP_DOWN 1)
+  (define-public (number->%libinput-tablet-tool-tip-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_TABLET_TOOL_TIP_UP) (1 LIBINPUT_TABLET_TOOL_TIP_DOWN))
+          o)
+        (error "not found" '%libinput-tablet-tool-tip-state-enum o)))
   (define-public (%libinput-tablet-tool-tip-state-enum->number o)
     (bs:enum->integer %libinput-tablet-tool-tip-state-enum o)))
 (begin
@@ -384,6 +469,11 @@
     (bs:enum '((LIBINPUT_SWITCH_STATE_OFF 0) (LIBINPUT_SWITCH_STATE_ON 1))))
   (define-public LIBINPUT_SWITCH_STATE_OFF 0)
   (define-public LIBINPUT_SWITCH_STATE_ON 1)
+  (define-public (number->%libinput-switch-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_SWITCH_STATE_OFF) (1 LIBINPUT_SWITCH_STATE_ON))
+          o)
+        (error "not found" '%libinput-switch-state-enum o)))
   (define-public (%libinput-switch-state-enum->number o)
     (bs:enum->integer %libinput-switch-state-enum o)))
 (begin
@@ -391,6 +481,9 @@
     (bs:enum '((LIBINPUT_SWITCH_LID 1) (LIBINPUT_SWITCH_TABLET_MODE 2))))
   (define-public LIBINPUT_SWITCH_LID 1)
   (define-public LIBINPUT_SWITCH_TABLET_MODE 2)
+  (define-public (number->%libinput-switch-enum o)
+    (or (assq-ref '((1 LIBINPUT_SWITCH_LID) (2 LIBINPUT_SWITCH_TABLET_MODE)) o)
+        (error "not found" '%libinput-switch-enum o)))
   (define-public (%libinput-switch-enum->number o)
     (bs:enum->integer %libinput-switch-enum o)))
 (begin
@@ -471,6 +564,43 @@
   (define-public LIBINPUT_EVENT_GESTURE_HOLD_BEGIN 806)
   (define-public LIBINPUT_EVENT_GESTURE_HOLD_END 807)
   (define-public LIBINPUT_EVENT_SWITCH_TOGGLE 900)
+  (define-public (number->%libinput-event-type-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_EVENT_NONE)
+            (1 LIBINPUT_EVENT_DEVICE_ADDED)
+            (2 LIBINPUT_EVENT_DEVICE_REMOVED)
+            (300 LIBINPUT_EVENT_KEYBOARD_KEY)
+            (400 LIBINPUT_EVENT_POINTER_MOTION)
+            (401 LIBINPUT_EVENT_POINTER_MOTION_ABSOLUTE)
+            (402 LIBINPUT_EVENT_POINTER_BUTTON)
+            (403 LIBINPUT_EVENT_POINTER_AXIS)
+            (404 LIBINPUT_EVENT_POINTER_SCROLL_WHEEL)
+            (405 LIBINPUT_EVENT_POINTER_SCROLL_FINGER)
+            (406 LIBINPUT_EVENT_POINTER_SCROLL_CONTINUOUS)
+            (500 LIBINPUT_EVENT_TOUCH_DOWN)
+            (501 LIBINPUT_EVENT_TOUCH_UP)
+            (502 LIBINPUT_EVENT_TOUCH_MOTION)
+            (503 LIBINPUT_EVENT_TOUCH_CANCEL)
+            (504 LIBINPUT_EVENT_TOUCH_FRAME)
+            (600 LIBINPUT_EVENT_TABLET_TOOL_AXIS)
+            (601 LIBINPUT_EVENT_TABLET_TOOL_PROXIMITY)
+            (602 LIBINPUT_EVENT_TABLET_TOOL_TIP)
+            (603 LIBINPUT_EVENT_TABLET_TOOL_BUTTON)
+            (700 LIBINPUT_EVENT_TABLET_PAD_BUTTON)
+            (701 LIBINPUT_EVENT_TABLET_PAD_RING)
+            (702 LIBINPUT_EVENT_TABLET_PAD_STRIP)
+            (703 LIBINPUT_EVENT_TABLET_PAD_KEY)
+            (800 LIBINPUT_EVENT_GESTURE_SWIPE_BEGIN)
+            (801 LIBINPUT_EVENT_GESTURE_SWIPE_UPDATE)
+            (802 LIBINPUT_EVENT_GESTURE_SWIPE_END)
+            (803 LIBINPUT_EVENT_GESTURE_PINCH_BEGIN)
+            (804 LIBINPUT_EVENT_GESTURE_PINCH_UPDATE)
+            (805 LIBINPUT_EVENT_GESTURE_PINCH_END)
+            (806 LIBINPUT_EVENT_GESTURE_HOLD_BEGIN)
+            (807 LIBINPUT_EVENT_GESTURE_HOLD_END)
+            (900 LIBINPUT_EVENT_SWITCH_TOGGLE))
+          o)
+        (error "not found" '%libinput-event-type-enum o)))
   (define-public (%libinput-event-type-enum->number o)
     (bs:enum->integer %libinput-event-type-enum o)))
 (define-public libinput-event-destroy
@@ -484,7 +614,9 @@
                  ffi:int32
                  (dynamic-func "libinput_event_get_type" (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event event)))))
+    (lambda (event)
+      (number->%libinput-event-type-enum
+        (%func (unwrap-libinput-event event))))))
 (define-public libinput-event-get-context
   (let ((%func (ffi:pointer->procedure
                  '*
@@ -622,7 +754,9 @@
                    "libinput_event_keyboard_get_key_state"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-keyboard event)))))
+    (lambda (event)
+      (number->%libinput-key-state-enum
+        (%func (unwrap-libinput-event-keyboard event))))))
 (define-public libinput-event-keyboard-get-base-event
   (let ((%func (ffi:pointer->procedure
                  '*
@@ -737,7 +871,9 @@
                    "libinput_event_pointer_get_button_state"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
+    (lambda (event)
+      (number->%libinput-button-state-enum
+        (%func (unwrap-libinput-event-pointer event))))))
 (define-public libinput-event-pointer-get-seat-button-count
   (let ((%func (ffi:pointer->procedure
                  ffi:uint32
@@ -773,7 +909,9 @@
                    "libinput_event_pointer_get_axis_source"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-pointer event)))))
+    (lambda (event)
+      (number->%libinput-pointer-axis-source-enum
+        (%func (unwrap-libinput-event-pointer event))))))
 (define-public libinput-event-pointer-get-axis-value-discrete
   (let ((%func (ffi:pointer->procedure
                  ffi:double
@@ -1217,7 +1355,9 @@
                    "libinput_event_tablet_tool_get_proximity_state"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
+    (lambda (event)
+      (number->%libinput-tablet-tool-proximity-state-enum
+        (%func (unwrap-libinput-event-tablet-tool event))))))
 (define-public libinput-event-tablet-tool-get-tip-state
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -1225,7 +1365,9 @@
                    "libinput_event_tablet_tool_get_tip_state"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
+    (lambda (event)
+      (number->%libinput-tablet-tool-tip-state-enum
+        (%func (unwrap-libinput-event-tablet-tool event))))))
 (define-public libinput-event-tablet-tool-get-button
   (let ((%func (ffi:pointer->procedure
                  ffi:uint32
@@ -1241,7 +1383,9 @@
                    "libinput_event_tablet_tool_get_button_state"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-tool event)))))
+    (lambda (event)
+      (number->%libinput-button-state-enum
+        (%func (unwrap-libinput-event-tablet-tool event))))))
 (define-public libinput-event-tablet-tool-get-seat-button-count
   (let ((%func (ffi:pointer->procedure
                  ffi:uint32
@@ -1273,7 +1417,9 @@
                    "libinput_tablet_tool_get_type"
                    (force %libinput))
                  (list '*))))
-    (lambda (tool) (%func (unwrap-libinput-tablet-tool tool)))))
+    (lambda (tool)
+      (number->%libinput-tablet-tool-type-enum
+        (%func (unwrap-libinput-tablet-tool tool))))))
 (define-public libinput-tablet-tool-get-tool-id
   (let ((%func (ffi:pointer->procedure
                  ffi:uint64
@@ -1425,7 +1571,9 @@
                    "libinput_event_tablet_pad_get_ring_source"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
+    (lambda (event)
+      (number->%libinput-tablet-pad-ring-axis-source-enum
+        (%func (unwrap-libinput-event-tablet-pad event))))))
 (define-public libinput-event-tablet-pad-get-strip-position
   (let ((%func (ffi:pointer->procedure
                  ffi:double
@@ -1449,7 +1597,9 @@
                    "libinput_event_tablet_pad_get_strip_source"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
+    (lambda (event)
+      (number->%libinput-tablet-pad-strip-axis-source-enum
+        (%func (unwrap-libinput-event-tablet-pad event))))))
 (define-public libinput-event-tablet-pad-get-button-number
   (let ((%func (ffi:pointer->procedure
                  ffi:uint32
@@ -1465,7 +1615,9 @@
                    "libinput_event_tablet_pad_get_button_state"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
+    (lambda (event)
+      (number->%libinput-button-state-enum
+        (%func (unwrap-libinput-event-tablet-pad event))))))
 (define-public libinput-event-tablet-pad-get-key
   (let ((%func (ffi:pointer->procedure
                  ffi:uint32
@@ -1481,7 +1633,9 @@
                    "libinput_event_tablet_pad_get_key_state"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-tablet-pad event)))))
+    (lambda (event)
+      (number->%libinput-key-state-enum
+        (%func (unwrap-libinput-event-tablet-pad event))))))
 (define-public libinput-event-tablet-pad-get-mode
   (let ((%func (ffi:pointer->procedure
                  ffi:unsigned-int
@@ -1523,7 +1677,9 @@
                    "libinput_event_switch_get_switch"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-switch event)))))
+    (lambda (event)
+      (number->%libinput-switch-enum
+        (%func (unwrap-libinput-event-switch event))))))
 (define-public libinput-event-switch-get-switch-state
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -1531,7 +1687,9 @@
                    "libinput_event_switch_get_switch_state"
                    (force %libinput))
                  (list '*))))
-    (lambda (event) (%func (unwrap-libinput-event-switch event)))))
+    (lambda (event)
+      (number->%libinput-switch-state-enum
+        (%func (unwrap-libinput-event-switch event))))))
 (define-public libinput-event-switch-get-base-event
   (let ((%func (ffi:pointer->procedure
                  '*
@@ -1645,7 +1803,8 @@
                  ffi:int32
                  (dynamic-func "libinput_next_event_type" (force %libinput))
                  (list '*))))
-    (lambda (libinput) (%func (unwrap-libinput libinput)))))
+    (lambda (libinput)
+      (number->%libinput-event-type-enum (%func (unwrap-libinput libinput))))))
 (define-public libinput-set-user-data
   (let ((%func (ffi:pointer->procedure
                  ffi:void
@@ -1696,7 +1855,9 @@
                  ffi:int32
                  (dynamic-func "libinput_log_get_priority" (force %libinput))
                  (list '*))))
-    (lambda (libinput) (%func (unwrap-libinput libinput)))))
+    (lambda (libinput)
+      (number->%libinput-log-priority-enum
+        (%func (unwrap-libinput libinput))))))
 (define-public libinput_log_handler (bs:pointer '*))
 (define-public libinput-log-set-handler
   (let ((%func (ffi:pointer->procedure
@@ -1993,6 +2154,13 @@
   (define-public LIBINPUT_CONFIG_STATUS_SUCCESS 0)
   (define-public LIBINPUT_CONFIG_STATUS_UNSUPPORTED 1)
   (define-public LIBINPUT_CONFIG_STATUS_INVALID 2)
+  (define-public (number->%libinput-config-status-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_STATUS_SUCCESS)
+            (1 LIBINPUT_CONFIG_STATUS_UNSUPPORTED)
+            (2 LIBINPUT_CONFIG_STATUS_INVALID))
+          o)
+        (error "not found" '%libinput-config-status-enum o)))
   (define-public (%libinput-config-status-enum->number o)
     (bs:enum->integer %libinput-config-status-enum o)))
 (define-public libinput-config-status-to-str
@@ -2011,6 +2179,11 @@
       '((LIBINPUT_CONFIG_TAP_DISABLED 0) (LIBINPUT_CONFIG_TAP_ENABLED 1))))
   (define-public LIBINPUT_CONFIG_TAP_DISABLED 0)
   (define-public LIBINPUT_CONFIG_TAP_ENABLED 1)
+  (define-public (number->%libinput-config-tap-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_TAP_DISABLED) (1 LIBINPUT_CONFIG_TAP_ENABLED))
+          o)
+        (error "not found" '%libinput-config-tap-state-enum o)))
   (define-public (%libinput-config-tap-state-enum->number o)
     (bs:enum->integer %libinput-config-tap-state-enum o)))
 (define-public libinput-device-config-tap-get-finger-count
@@ -2029,8 +2202,9 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device enable)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-tap-state-enum->number enable)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-tap-state-enum->number enable))))))
 (define-public libinput-device-config-tap-get-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2038,7 +2212,9 @@
                    "libinput_device_config_tap_get_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-tap-state-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-tap-get-default-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2046,13 +2222,20 @@
                    "libinput_device_config_tap_get_default_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-tap-state-enum
+        (%func (unwrap-libinput-device device))))))
 (begin
   (define-public %libinput-config-tap-button-map-enum
     (bs:enum
       '((LIBINPUT_CONFIG_TAP_MAP_LRM 0) (LIBINPUT_CONFIG_TAP_MAP_LMR 1))))
   (define-public LIBINPUT_CONFIG_TAP_MAP_LRM 0)
   (define-public LIBINPUT_CONFIG_TAP_MAP_LMR 1)
+  (define-public (number->%libinput-config-tap-button-map-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_TAP_MAP_LRM) (1 LIBINPUT_CONFIG_TAP_MAP_LMR))
+          o)
+        (error "not found" '%libinput-config-tap-button-map-enum o)))
   (define-public (%libinput-config-tap-button-map-enum->number o)
     (bs:enum->integer %libinput-config-tap-button-map-enum o)))
 (define-public libinput-device-config-tap-set-button-map
@@ -2063,8 +2246,9 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device map)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-tap-button-map-enum->number map)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-tap-button-map-enum->number map))))))
 (define-public libinput-device-config-tap-get-button-map
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2072,7 +2256,9 @@
                    "libinput_device_config_tap_get_button_map"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-tap-button-map-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-tap-get-default-button-map
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2080,13 +2266,20 @@
                    "libinput_device_config_tap_get_default_button_map"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-tap-button-map-enum
+        (%func (unwrap-libinput-device device))))))
 (begin
   (define-public %libinput-config-drag-state-enum
     (bs:enum
       '((LIBINPUT_CONFIG_DRAG_DISABLED 0) (LIBINPUT_CONFIG_DRAG_ENABLED 1))))
   (define-public LIBINPUT_CONFIG_DRAG_DISABLED 0)
   (define-public LIBINPUT_CONFIG_DRAG_ENABLED 1)
+  (define-public (number->%libinput-config-drag-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_DRAG_DISABLED) (1 LIBINPUT_CONFIG_DRAG_ENABLED))
+          o)
+        (error "not found" '%libinput-config-drag-state-enum o)))
   (define-public (%libinput-config-drag-state-enum->number o)
     (bs:enum->integer %libinput-config-drag-state-enum o)))
 (define-public libinput-device-config-tap-set-drag-enabled
@@ -2097,8 +2290,9 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device enable)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-drag-state-enum->number enable)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-drag-state-enum->number enable))))))
 (define-public libinput-device-config-tap-get-drag-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2106,7 +2300,9 @@
                    "libinput_device_config_tap_get_drag_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-drag-state-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-tap-get-default-drag-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2114,7 +2310,9 @@
                    "libinput_device_config_tap_get_default_drag_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-drag-state-enum
+        (%func (unwrap-libinput-device device))))))
 (begin
   (define-public %libinput-config-drag-lock-state-enum
     (bs:enum
@@ -2122,6 +2320,12 @@
         (LIBINPUT_CONFIG_DRAG_LOCK_ENABLED 1))))
   (define-public LIBINPUT_CONFIG_DRAG_LOCK_DISABLED 0)
   (define-public LIBINPUT_CONFIG_DRAG_LOCK_ENABLED 1)
+  (define-public (number->%libinput-config-drag-lock-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_DRAG_LOCK_DISABLED)
+            (1 LIBINPUT_CONFIG_DRAG_LOCK_ENABLED))
+          o)
+        (error "not found" '%libinput-config-drag-lock-state-enum o)))
   (define-public (%libinput-config-drag-lock-state-enum->number o)
     (bs:enum->integer %libinput-config-drag-lock-state-enum o)))
 (define-public libinput-device-config-tap-set-drag-lock-enabled
@@ -2132,8 +2336,9 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device enable)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-drag-lock-state-enum->number enable)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-drag-lock-state-enum->number enable))))))
 (define-public libinput-device-config-tap-get-drag-lock-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2141,7 +2346,9 @@
                    "libinput_device_config_tap_get_drag_lock_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-drag-lock-state-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-tap-get-default-drag-lock-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2149,7 +2356,9 @@
                    "libinput_device_config_tap_get_default_drag_lock_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-drag-lock-state-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-calibration-has-matrix
   (let ((%func (ffi:pointer->procedure
                  ffi:int
@@ -2166,14 +2375,15 @@
                    (force %libinput))
                  (list '* '*))))
     (lambda (device matrix)
-      (%func (unwrap-libinput-device device)
-             ((lambda (a)
-                (ffi:bytevector->pointer
-                  (bytestructure-bytevector
-                    (bytestructure
-                      (bs:vector 6 float)
-                      (cond ((vector? a) a) ((list? a) (list->vector a)))))))
-              matrix)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               ((lambda (a)
+                  (ffi:bytevector->pointer
+                    (bytestructure-bytevector
+                      (bytestructure
+                        (bs:vector 6 float)
+                        (cond ((vector? a) a) ((list? a) (list->vector a)))))))
+                matrix))))))
 (define-public libinput-device-config-calibration-get-matrix
   (let ((%func (ffi:pointer->procedure
                  ffi:int
@@ -2215,6 +2425,13 @@
   (define-public LIBINPUT_CONFIG_SEND_EVENTS_ENABLED 0)
   (define-public LIBINPUT_CONFIG_SEND_EVENTS_DISABLED 1)
   (define-public LIBINPUT_CONFIG_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE 2)
+  (define-public (number->%libinput-config-send-events-mode-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_SEND_EVENTS_ENABLED)
+            (1 LIBINPUT_CONFIG_SEND_EVENTS_DISABLED)
+            (2 LIBINPUT_CONFIG_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE))
+          o)
+        (error "not found" '%libinput-config-send-events-mode-enum o)))
   (define-public (%libinput-config-send-events-mode-enum->number o)
     (bs:enum->integer %libinput-config-send-events-mode-enum o)))
 (define-public libinput-device-config-send-events-get-modes
@@ -2232,7 +2449,9 @@
                    "libinput_device_config_send_events_set_mode"
                    (force %libinput))
                  (list '* ffi:uint32))))
-    (lambda (device mode) (%func (unwrap-libinput-device device) mode))))
+    (lambda (device mode)
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device) mode)))))
 (define-public libinput-device-config-send-events-get-mode
   (let ((%func (ffi:pointer->procedure
                  ffi:uint32
@@ -2264,7 +2483,9 @@
                    "libinput_device_config_accel_set_speed"
                    (force %libinput))
                  (list '* ffi:double))))
-    (lambda (device speed) (%func (unwrap-libinput-device device) speed))))
+    (lambda (device speed)
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device) speed)))))
 (define-public libinput-device-config-accel-get-speed
   (let ((%func (ffi:pointer->procedure
                  ffi:double
@@ -2290,6 +2511,13 @@
   (define-public LIBINPUT_CONFIG_ACCEL_PROFILE_NONE 0)
   (define-public LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT 1)
   (define-public LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE 2)
+  (define-public (number->%libinput-config-accel-profile-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_ACCEL_PROFILE_NONE)
+            (1 LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT)
+            (2 LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE))
+          o)
+        (error "not found" '%libinput-config-accel-profile-enum o)))
   (define-public (%libinput-config-accel-profile-enum->number o)
     (bs:enum->integer %libinput-config-accel-profile-enum o)))
 (define-public libinput-device-config-accel-get-profiles
@@ -2308,8 +2536,9 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device profile)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-accel-profile-enum->number profile)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-accel-profile-enum->number profile))))))
 (define-public libinput-device-config-accel-get-profile
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2317,7 +2546,9 @@
                    "libinput_device_config_accel_get_profile"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-accel-profile-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-accel-get-default-profile
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2325,7 +2556,9 @@
                    "libinput_device_config_accel_get_default_profile"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-accel-profile-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-scroll-has-natural-scroll
   (let ((%func (ffi:pointer->procedure
                  ffi:int
@@ -2341,7 +2574,9 @@
                    "libinput_device_config_scroll_set_natural_scroll_enabled"
                    (force %libinput))
                  (list '* ffi:int))))
-    (lambda (device enable) (%func (unwrap-libinput-device device) enable))))
+    (lambda (device enable)
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device) enable)))))
 (define-public libinput-device-config-scroll-get-natural-scroll-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int
@@ -2374,7 +2609,8 @@
                    (force %libinput))
                  (list '* ffi:int))))
     (lambda (device left_handed)
-      (%func (unwrap-libinput-device device) left_handed))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device) left_handed)))))
 (define-public libinput-device-config-left-handed-get
   (let ((%func (ffi:pointer->procedure
                  ffi:int
@@ -2400,6 +2636,13 @@
   (define-public LIBINPUT_CONFIG_CLICK_METHOD_NONE 0)
   (define-public LIBINPUT_CONFIG_CLICK_METHOD_BUTTON_AREAS 1)
   (define-public LIBINPUT_CONFIG_CLICK_METHOD_CLICKFINGER 2)
+  (define-public (number->%libinput-config-click-method-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_CLICK_METHOD_NONE)
+            (1 LIBINPUT_CONFIG_CLICK_METHOD_BUTTON_AREAS)
+            (2 LIBINPUT_CONFIG_CLICK_METHOD_CLICKFINGER))
+          o)
+        (error "not found" '%libinput-config-click-method-enum o)))
   (define-public (%libinput-config-click-method-enum->number o)
     (bs:enum->integer %libinput-config-click-method-enum o)))
 (define-public libinput-device-config-click-get-methods
@@ -2418,8 +2661,9 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device method)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-click-method-enum->number method)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-click-method-enum->number method))))))
 (define-public libinput-device-config-click-get-method
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2427,7 +2671,9 @@
                    "libinput_device_config_click_get_method"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-click-method-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-click-get-default-method
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2435,7 +2681,9 @@
                    "libinput_device_config_click_get_default_method"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-click-method-enum
+        (%func (unwrap-libinput-device device))))))
 (begin
   (define-public %libinput-config-middle-emulation-state-enum
     (bs:enum
@@ -2443,6 +2691,12 @@
         (LIBINPUT_CONFIG_MIDDLE_EMULATION_ENABLED 1))))
   (define-public LIBINPUT_CONFIG_MIDDLE_EMULATION_DISABLED 0)
   (define-public LIBINPUT_CONFIG_MIDDLE_EMULATION_ENABLED 1)
+  (define-public (number->%libinput-config-middle-emulation-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_MIDDLE_EMULATION_DISABLED)
+            (1 LIBINPUT_CONFIG_MIDDLE_EMULATION_ENABLED))
+          o)
+        (error "not found" '%libinput-config-middle-emulation-state-enum o)))
   (define-public (%libinput-config-middle-emulation-state-enum->number o)
     (bs:enum->integer %libinput-config-middle-emulation-state-enum o)))
 (define-public libinput-device-config-middle-emulation-is-available
@@ -2461,8 +2715,10 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device enable)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-middle-emulation-state-enum->number enable)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-middle-emulation-state-enum->number
+                 enable))))))
 (define-public libinput-device-config-middle-emulation-get-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2470,7 +2726,9 @@
                    "libinput_device_config_middle_emulation_get_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-middle-emulation-state-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-middle-emulation-get-default-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2478,7 +2736,9 @@
                    "libinput_device_config_middle_emulation_get_default_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-middle-emulation-state-enum
+        (%func (unwrap-libinput-device device))))))
 (begin
   (define-public %libinput-config-scroll-method-enum
     (bs:enum
@@ -2490,6 +2750,14 @@
   (define-public LIBINPUT_CONFIG_SCROLL_2FG 1)
   (define-public LIBINPUT_CONFIG_SCROLL_EDGE 2)
   (define-public LIBINPUT_CONFIG_SCROLL_ON_BUTTON_DOWN 4)
+  (define-public (number->%libinput-config-scroll-method-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_SCROLL_NO_SCROLL)
+            (1 LIBINPUT_CONFIG_SCROLL_2FG)
+            (2 LIBINPUT_CONFIG_SCROLL_EDGE)
+            (4 LIBINPUT_CONFIG_SCROLL_ON_BUTTON_DOWN))
+          o)
+        (error "not found" '%libinput-config-scroll-method-enum o)))
   (define-public (%libinput-config-scroll-method-enum->number o)
     (bs:enum->integer %libinput-config-scroll-method-enum o)))
 (define-public libinput-device-config-scroll-get-methods
@@ -2508,8 +2776,9 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device method)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-scroll-method-enum->number method)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-scroll-method-enum->number method))))))
 (define-public libinput-device-config-scroll-get-method
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2517,7 +2786,9 @@
                    "libinput_device_config_scroll_get_method"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-scroll-method-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-scroll-get-default-method
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2525,7 +2796,9 @@
                    "libinput_device_config_scroll_get_default_method"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-scroll-method-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-scroll-set-button
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2533,7 +2806,9 @@
                    "libinput_device_config_scroll_set_button"
                    (force %libinput))
                  (list '* ffi:uint32))))
-    (lambda (device button) (%func (unwrap-libinput-device device) button))))
+    (lambda (device button)
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device) button)))))
 (define-public libinput-device-config-scroll-get-button
   (let ((%func (ffi:pointer->procedure
                  ffi:uint32
@@ -2557,6 +2832,12 @@
         (LIBINPUT_CONFIG_SCROLL_BUTTON_LOCK_ENABLED 1))))
   (define-public LIBINPUT_CONFIG_SCROLL_BUTTON_LOCK_DISABLED 0)
   (define-public LIBINPUT_CONFIG_SCROLL_BUTTON_LOCK_ENABLED 1)
+  (define-public (number->%libinput-config-scroll-button-lock-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_SCROLL_BUTTON_LOCK_DISABLED)
+            (1 LIBINPUT_CONFIG_SCROLL_BUTTON_LOCK_ENABLED))
+          o)
+        (error "not found" '%libinput-config-scroll-button-lock-state-enum o)))
   (define-public (%libinput-config-scroll-button-lock-state-enum->number o)
     (bs:enum->integer %libinput-config-scroll-button-lock-state-enum o)))
 (define-public libinput-device-config-scroll-set-button-lock
@@ -2567,8 +2848,10 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device state)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-scroll-button-lock-state-enum->number state)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-scroll-button-lock-state-enum->number
+                 state))))))
 (define-public libinput-device-config-scroll-get-button-lock
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2576,7 +2859,9 @@
                    "libinput_device_config_scroll_get_button_lock"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-scroll-button-lock-state-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-scroll-get-default-button-lock
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2584,13 +2869,20 @@
                    "libinput_device_config_scroll_get_default_button_lock"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-scroll-button-lock-state-enum
+        (%func (unwrap-libinput-device device))))))
 (begin
   (define-public %libinput-config-dwt-state-enum
     (bs:enum
       '((LIBINPUT_CONFIG_DWT_DISABLED 0) (LIBINPUT_CONFIG_DWT_ENABLED 1))))
   (define-public LIBINPUT_CONFIG_DWT_DISABLED 0)
   (define-public LIBINPUT_CONFIG_DWT_ENABLED 1)
+  (define-public (number->%libinput-config-dwt-state-enum o)
+    (or (assq-ref
+          '((0 LIBINPUT_CONFIG_DWT_DISABLED) (1 LIBINPUT_CONFIG_DWT_ENABLED))
+          o)
+        (error "not found" '%libinput-config-dwt-state-enum o)))
   (define-public (%libinput-config-dwt-state-enum->number o)
     (bs:enum->integer %libinput-config-dwt-state-enum o)))
 (define-public libinput-device-config-dwt-is-available
@@ -2609,8 +2901,9 @@
                    (force %libinput))
                  (list '* ffi:int32))))
     (lambda (device enable)
-      (%func (unwrap-libinput-device device)
-             (%libinput-config-dwt-state-enum->number enable)))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device)
+               (%libinput-config-dwt-state-enum->number enable))))))
 (define-public libinput-device-config-dwt-get-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2618,7 +2911,9 @@
                    "libinput_device_config_dwt_get_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-dwt-state-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-dwt-get-default-enabled
   (let ((%func (ffi:pointer->procedure
                  ffi:int32
@@ -2626,7 +2921,9 @@
                    "libinput_device_config_dwt_get_default_enabled"
                    (force %libinput))
                  (list '*))))
-    (lambda (device) (%func (unwrap-libinput-device device)))))
+    (lambda (device)
+      (number->%libinput-config-dwt-state-enum
+        (%func (unwrap-libinput-device device))))))
 (define-public libinput-device-config-rotation-is-available
   (let ((%func (ffi:pointer->procedure
                  ffi:int
@@ -2643,7 +2940,8 @@
                    (force %libinput))
                  (list '* ffi:unsigned-int))))
     (lambda (device degrees_cw)
-      (%func (unwrap-libinput-device device) degrees_cw))))
+      (number->%libinput-config-status-enum
+        (%func (unwrap-libinput-device device) degrees_cw)))))
 (define-public libinput-device-config-rotation-get-angle
   (let ((%func (ffi:pointer->procedure
                  ffi:unsigned-int
