@@ -242,15 +242,19 @@
                       #:use-module (bytestructure-class)
                       #:use-module ((system foreign) #:prefix ffi:)
                       #:use-module (bytestructures guile)
-                      #:use-module (oop goops)
-                      #:use-module (libinput config))
-                   `(define-syntax-rule (define-libinput-procedure (name args ...)
-                                          (c-return c-name c-args)
-                                          body ...)
-                      (define-public name
-                        (let ((% (ffi:pointer->procedure c-return c-name c-args)))
-                          (lambda (args ...)
-                            body ...))))
+                      #:use-module (oop goops))
+                   `(define-public %libinput (delay (dynamic-link "/gnu/store/5zvwpqwlgxfi317ly8v52irbvjdhc1np-libinput-1.19.4/lib/libinput.so")))
+                   `(define-syntax define-libinput-procedure
+                      (lambda (x)
+                        (syntax-case x ()
+                          ((_ (name args ...)
+                              (c-return c-name c-args)
+                              body ...)
+                           (with-syntax ((% (datum->syntax x '%)))
+                             #'(define-public name
+                                 (let ((% (ffi:pointer->procedure c-return (dynamic-func c-name (force %libinput)) c-args)))
+                                   (lambda (args ...)
+                                     body ...))))))))
 
                    `(define (pointer->string* ptr)
                       (if (ffi:null-pointer? ptr)
