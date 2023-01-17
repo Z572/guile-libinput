@@ -7,10 +7,9 @@
   #:use-module
   (bytestructures guile)
   #:use-module
-  (oop goops))
-(define-public %libinput
-  (delay (dynamic-link
-           "/gnu/store/5zvwpqwlgxfi317ly8v52irbvjdhc1np-libinput-1.19.4/lib/libinput.so")))
+  (oop goops)
+  #:use-module
+  (libinput config))
 (define-syntax define-libinput-procedure
   (lambda (x)
     (syntax-case x ()
