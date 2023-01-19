@@ -29,6 +29,7 @@
       (':double (list 'ffi:double 'double #f #f))
       (':float (list 'ffi:float 'float #f #f))
       ('int32_t (list 'ffi:int32 'int32 #f #f))
+      (':_Bool (list 'ffi:int8 'stdbool 'non-zero? '(lambda (o) (if o 1 0))))
       ('uint32_t (list 'ffi:uint32 'uint32 #f #f))
       ('uint64_t (list 'ffi:uint64 'uint64 #f #f))
       ('size_t (list 'ffi:size_t 'size_t #f #f))
@@ -202,7 +203,10 @@
        #`(define-libinput-procedure (<func-name> <s-name> ...)
            (<ffi:return> <name> (list <ffi:args> ...))
            #,(handle-need-wrap? #'(% <handled-args> ...)
-                                #'<return>))))
+                                (cond ((string-suffix? "is_available"
+                                                       (syntax->datum #'<name>) )
+                                       #':_Bool)
+                                      (else #'<return>))))))
 
     ((function f-name ((s-name type) ...) return :variadic) #f)
     ((function f-name ((type) ...) return) #f)
@@ -260,6 +264,7 @@
                       (if (ffi:null-pointer? ptr)
                           #f
                           (ffi:pointer->string ptr)))
+                   `(define non-zero? (negate zero?))
 
                    (parameterize ((current-error-port (%make-void-port "w")))
                      (let ((port (open-pipe*

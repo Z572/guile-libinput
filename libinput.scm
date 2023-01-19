@@ -24,6 +24,7 @@
                (lambda (args ...) body ...)))))))))
 (define (pointer->string* ptr)
   (if (ffi:null-pointer? ptr) #f (ffi:pointer->string ptr)))
+(define non-zero? (negate zero?))
 (begin
   (define-public %libinput-struct (bs:unknow))
   (define-bytestructure-class
@@ -1597,7 +1598,7 @@
 (define-libinput-procedure
   (libinput-device-config-accel-is-available device)
   (ffi:int "libinput_device_config_accel_is_available" (list '*))
-  (% (unwrap-libinput-device device)))
+  (non-zero? (% (unwrap-libinput-device device))))
 (define-libinput-procedure
   (libinput-device-config-accel-set-speed device speed)
   (ffi:int32 "libinput_device_config_accel_set_speed" (list '* ffi:double))
@@ -1675,7 +1676,7 @@
 (define-libinput-procedure
   (libinput-device-config-left-handed-is-available device)
   (ffi:int "libinput_device_config_left_handed_is_available" (list '*))
-  (% (unwrap-libinput-device device)))
+  (non-zero? (% (unwrap-libinput-device device))))
 (define-libinput-procedure
   (libinput-device-config-left-handed-set device left_handed)
   (ffi:int32 "libinput_device_config_left_handed_set" (list '* ffi:int))
@@ -1745,7 +1746,7 @@
 (define-libinput-procedure
   (libinput-device-config-middle-emulation-is-available device)
   (ffi:int "libinput_device_config_middle_emulation_is_available" (list '*))
-  (% (unwrap-libinput-device device)))
+  (non-zero? (% (unwrap-libinput-device device))))
 (define-libinput-procedure
   (libinput-device-config-middle-emulation-set-enabled device enable)
   (ffi:int32
@@ -1869,7 +1870,7 @@
 (define-libinput-procedure
   (libinput-device-config-dwt-is-available device)
   (ffi:int "libinput_device_config_dwt_is_available" (list '*))
-  (% (unwrap-libinput-device device)))
+  (non-zero? (% (unwrap-libinput-device device))))
 (define-libinput-procedure
   (libinput-device-config-dwt-set-enabled device enable)
   (ffi:int32 "libinput_device_config_dwt_set_enabled" (list '* ffi:int32))
@@ -1889,7 +1890,7 @@
 (define-libinput-procedure
   (libinput-device-config-rotation-is-available device)
   (ffi:int "libinput_device_config_rotation_is_available" (list '*))
-  (% (unwrap-libinput-device device)))
+  (non-zero? (% (unwrap-libinput-device device))))
 (define-libinput-procedure
   (libinput-device-config-rotation-set-angle device degrees_cw)
   (ffi:int32

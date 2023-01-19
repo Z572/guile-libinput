@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([guile-libinput], [0.0.1], [873216071@qq.com])
+AC_INIT([guile-libinput], [0.1.0], [873216071@qq.com])
 
 # Checks for programs.
 AC_CONFIG_MACRO_DIR([m4])
