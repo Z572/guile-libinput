@@ -388,19 +388,19 @@
   (ffi:int
     "libinput_tablet_pad_mode_group_has_button"
     (list '* ffi:unsigned-int))
-  (% (unwrap-libinput-tablet-pad-mode-group group) button))
+  (non-zero? (% (unwrap-libinput-tablet-pad-mode-group group) button)))
 (define-libinput-procedure
   (libinput-tablet-pad-mode-group-has-ring group ring)
   (ffi:int
     "libinput_tablet_pad_mode_group_has_ring"
     (list '* ffi:unsigned-int))
-  (% (unwrap-libinput-tablet-pad-mode-group group) ring))
+  (non-zero? (% (unwrap-libinput-tablet-pad-mode-group group) ring)))
 (define-libinput-procedure
   (libinput-tablet-pad-mode-group-has-strip group strip)
   (ffi:int
     "libinput_tablet_pad_mode_group_has_strip"
     (list '* ffi:unsigned-int))
-  (% (unwrap-libinput-tablet-pad-mode-group group) strip))
+  (non-zero? (% (unwrap-libinput-tablet-pad-mode-group group) strip)))
 (define-libinput-procedure
   (libinput-tablet-pad-mode-group-button-is-toggle group button)
   (ffi:int
@@ -710,8 +710,9 @@
 (define-libinput-procedure
   (libinput-event-pointer-has-axis event axis)
   (ffi:int "libinput_event_pointer_has_axis" (list '* ffi:int32))
-  (% (unwrap-libinput-event-pointer event)
-     (%libinput-pointer-axis-enum->number axis)))
+  (non-zero?
+    (% (unwrap-libinput-event-pointer event)
+       (%libinput-pointer-axis-enum->number axis))))
 (define-libinput-procedure
   (libinput-event-pointer-get-axis-value event axis)
   (ffi:double "libinput_event_pointer_get_axis_value" (list '* ffi:int32))
@@ -832,47 +833,47 @@
 (define-libinput-procedure
   (libinput-event-tablet-tool-x-has-changed event)
   (ffi:int "libinput_event_tablet_tool_x_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-y-has-changed event)
   (ffi:int "libinput_event_tablet_tool_y_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-pressure-has-changed event)
   (ffi:int "libinput_event_tablet_tool_pressure_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-distance-has-changed event)
   (ffi:int "libinput_event_tablet_tool_distance_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-tilt-x-has-changed event)
   (ffi:int "libinput_event_tablet_tool_tilt_x_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-tilt-y-has-changed event)
   (ffi:int "libinput_event_tablet_tool_tilt_y_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-rotation-has-changed event)
   (ffi:int "libinput_event_tablet_tool_rotation_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-slider-has-changed event)
   (ffi:int "libinput_event_tablet_tool_slider_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-size-major-has-changed event)
   (ffi:int "libinput_event_tablet_tool_size_major_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-size-minor-has-changed event)
   (ffi:int "libinput_event_tablet_tool_size_minor_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-wheel-has-changed event)
   (ffi:int "libinput_event_tablet_tool_wheel_has_changed" (list '*))
-  (% (unwrap-libinput-event-tablet-tool event)))
+  (non-zero? (% (unwrap-libinput-event-tablet-tool event))))
 (define-libinput-procedure
   (libinput-event-tablet-tool-get-x event)
   (ffi:double "libinput_event_tablet_tool_get_x" (list '*))
@@ -996,35 +997,35 @@
 (define-libinput-procedure
   (libinput-tablet-tool-has-pressure tool)
   (ffi:int "libinput_tablet_tool_has_pressure" (list '*))
-  (% (unwrap-libinput-tablet-tool tool)))
+  (non-zero? (% (unwrap-libinput-tablet-tool tool))))
 (define-libinput-procedure
   (libinput-tablet-tool-has-distance tool)
   (ffi:int "libinput_tablet_tool_has_distance" (list '*))
-  (% (unwrap-libinput-tablet-tool tool)))
+  (non-zero? (% (unwrap-libinput-tablet-tool tool))))
 (define-libinput-procedure
   (libinput-tablet-tool-has-tilt tool)
   (ffi:int "libinput_tablet_tool_has_tilt" (list '*))
-  (% (unwrap-libinput-tablet-tool tool)))
+  (non-zero? (% (unwrap-libinput-tablet-tool tool))))
 (define-libinput-procedure
   (libinput-tablet-tool-has-rotation tool)
   (ffi:int "libinput_tablet_tool_has_rotation" (list '*))
-  (% (unwrap-libinput-tablet-tool tool)))
+  (non-zero? (% (unwrap-libinput-tablet-tool tool))))
 (define-libinput-procedure
   (libinput-tablet-tool-has-slider tool)
   (ffi:int "libinput_tablet_tool_has_slider" (list '*))
-  (% (unwrap-libinput-tablet-tool tool)))
+  (non-zero? (% (unwrap-libinput-tablet-tool tool))))
 (define-libinput-procedure
   (libinput-tablet-tool-has-size tool)
   (ffi:int "libinput_tablet_tool_has_size" (list '*))
-  (% (unwrap-libinput-tablet-tool tool)))
+  (non-zero? (% (unwrap-libinput-tablet-tool tool))))
 (define-libinput-procedure
   (libinput-tablet-tool-has-wheel tool)
   (ffi:int "libinput_tablet_tool_has_wheel" (list '*))
-  (% (unwrap-libinput-tablet-tool tool)))
+  (non-zero? (% (unwrap-libinput-tablet-tool tool))))
 (define-libinput-procedure
   (libinput-tablet-tool-has-button tool code)
   (ffi:int "libinput_tablet_tool_has_button" (list '* ffi:uint32))
-  (% (unwrap-libinput-tablet-tool tool) code))
+  (non-zero? (% (unwrap-libinput-tablet-tool tool) code)))
 (define-libinput-procedure
   (libinput-tablet-tool-is-unique tool)
   (ffi:int "libinput_tablet_tool_is_unique" (list '*))
@@ -1316,8 +1317,9 @@
 (define-libinput-procedure
   (libinput-device-has-capability device capability)
   (ffi:int "libinput_device_has_capability" (list '* ffi:int32))
-  (% (unwrap-libinput-device device)
-     (%libinput-device-capability-enum->number capability)))
+  (non-zero?
+    (% (unwrap-libinput-device device)
+       (%libinput-device-capability-enum->number capability))))
 (define-libinput-procedure
   (libinput-device-get-size device width height)
   (ffi:int "libinput_device_get_size" (list '* '* '*))
@@ -1325,11 +1327,11 @@
 (define-libinput-procedure
   (libinput-device-pointer-has-button device code)
   (ffi:int "libinput_device_pointer_has_button" (list '* ffi:uint32))
-  (% (unwrap-libinput-device device) code))
+  (non-zero? (% (unwrap-libinput-device device) code)))
 (define-libinput-procedure
   (libinput-device-keyboard-has-key device code)
   (ffi:int "libinput_device_keyboard_has_key" (list '* ffi:uint32))
-  (% (unwrap-libinput-device device) code))
+  (non-zero? (% (unwrap-libinput-device device) code)))
 (define-libinput-procedure
   (libinput-device-touch-get-touch-count device)
   (ffi:int "libinput_device_touch_get_touch_count" (list '*))
@@ -1337,7 +1339,8 @@
 (define-libinput-procedure
   (libinput-device-switch-has-switch device sw)
   (ffi:int "libinput_device_switch_has_switch" (list '* ffi:int32))
-  (% (unwrap-libinput-device device) (%libinput-switch-enum->number sw)))
+  (non-zero?
+    (% (unwrap-libinput-device device) (%libinput-switch-enum->number sw))))
 (define-libinput-procedure
   (libinput-device-tablet-pad-get-num-buttons device)
   (ffi:int "libinput_device_tablet_pad_get_num_buttons" (list '*))
@@ -1353,7 +1356,7 @@
 (define-libinput-procedure
   (libinput-device-tablet-pad-has-key device code)
   (ffi:int "libinput_device_tablet_pad_has_key" (list '* ffi:uint32))
-  (% (unwrap-libinput-device device) code))
+  (non-zero? (% (unwrap-libinput-device device) code)))
 (define-libinput-procedure
   (libinput-device-group-ref group)
   ('* "libinput_device_group_ref" (list '*))
@@ -1521,7 +1524,7 @@
 (define-libinput-procedure
   (libinput-device-config-calibration-has-matrix device)
   (ffi:int "libinput_device_config_calibration_has_matrix" (list '*))
-  (% (unwrap-libinput-device device)))
+  (non-zero? (% (unwrap-libinput-device device))))
 (define-libinput-procedure
   (libinput-device-config-calibration-set-matrix device matrix)
   (ffi:int32 "libinput_device_config_calibration_set_matrix" (list '* '*))
@@ -1653,7 +1656,7 @@
 (define-libinput-procedure
   (libinput-device-config-scroll-has-natural-scroll device)
   (ffi:int "libinput_device_config_scroll_has_natural_scroll" (list '*))
-  (% (unwrap-libinput-device device)))
+  (non-zero? (% (unwrap-libinput-device device))))
 (define-libinput-procedure
   (libinput-device-config-scroll-set-natural-scroll-enabled device enable)
   (ffi:int32

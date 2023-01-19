@@ -162,6 +162,15 @@
 (define (handle-need-wrap? n x)
   (define o (find-wrap (h x)))
   (if o (list o n) n))
+
+(define (string-infix? s1 s2)
+  (define first-char (string-ref s1 0))
+  (define (index s) (string-index s first-char))
+  (let loop ((s2 s2) (n (index s2)))
+    (and n (or (string-prefix? s1 s2 0 (string-length s1) n)
+               (let* ((str (substring/read-only s2 (1+ n))))
+                 (loop str (index str)))))))
+
 (define (handle-f x)
   (syntax-case x (struct enum function typedef extern)
     ((struct <name>)
@@ -203,10 +212,11 @@
        #`(define-libinput-procedure (<func-name> <s-name> ...)
            (<ffi:return> <name> (list <ffi:args> ...))
            #,(handle-need-wrap? #'(% <handled-args> ...)
-                                (cond ((string-suffix? "is_available"
-                                                       (syntax->datum #'<name>) )
-                                       #':_Bool)
-                                      (else #'<return>))))))
+                                (let ((name (syntax->datum #'<name>)))
+                                  (cond ((or (string-suffix? "is_available" name)
+                                             (string-infix? "_has_" name))
+                                         #':_Bool)
+                                        (else #'<return>)))))))
 
     ((function f-name ((s-name type) ...) return :variadic) #f)
     ((function f-name ((type) ...) return) #f)
