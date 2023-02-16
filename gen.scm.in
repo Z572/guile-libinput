@@ -194,7 +194,7 @@
                     (bs:enum '((<entry-name> <entry-value>) ...)))
                   (define-public <entry-name> <entry-value>) ...
                   (define-public (<num->enum> o)
-                    (or (assq-ref '((<entry-value> <entry-name>) ...) o)
+                    (or (assq-ref '((<entry-value> . <entry-name>) ...) o)
                         (error "not found" '<scm-enum-name> o)))
                   (define-public (<enum->num> o)
                     (bs:enum->integer <scm-enum-name> o))))))
