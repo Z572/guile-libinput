@@ -15,7 +15,8 @@ AC_CONFIG_FILES([libinput/config.scm])
 AC_CONFIG_FILES([pre-inst-env], [chmod +x pre-inst-env])
 
 AM_SILENT_RULES([yes])
-
+AC_PROG_CC
+LT_INIT([dlopen disable-static])
 GUILE_PKG([3.0 2.2])
 GUILE_PROGS
 GUILE_SITE_DIR

@@ -1,27 +1,25 @@
-(define-module
-  (libinput)
-  #:use-module
-  (bytestructure-class)
-  #:use-module
-  ((system foreign) #:prefix ffi:)
-  #:use-module
-  (bytestructures guile)
-  #:use-module
-  (oop goops)
-  #:use-module
-  (libinput config))
+(define-module (libinput)
+  #:use-module (bytestructure-class)
+  #:use-module ((system foreign) #:prefix ffi:)
+  #:use-module (system foreign-library)
+  #:use-module (bytestructures guile)
+  #:use-module (oop goops)
+  #:use-module (rnrs base)
+  #:use-module (libinput config))
+
+(load-extension "libguile_libinput" "init_libinput")
 (define-syntax define-libinput-procedure
   (lambda (x)
     (syntax-case x ()
       ((_ (name args ...) (c-return c-name c-args) body ...)
        (with-syntax ((% (datum->syntax x '%)))
          (syntax
-           (define-public name
-             (let ((% (ffi:pointer->procedure
-                        c-return
-                        (dynamic-func c-name (force %libinput))
-                        c-args)))
-               (lambda (args ...) body ...)))))))))
+          (define-public name
+            (let ((% (ffi:pointer->procedure
+                      c-return
+                      (dynamic-func c-name (force %libinput))
+                      c-args)))
+              (lambda* (args ...) body ...)))))))))
 (define (pointer->string* ptr)
   (if (ffi:null-pointer? ptr) #f (ffi:pointer->string ptr)))
 (define non-zero? (negate zero?))
@@ -1162,10 +1160,13 @@
   (libinput-udev-assign-seat libinput seat_id)
   (ffi:int "libinput_udev_assign_seat" (list '* '*))
   (% (unwrap-libinput libinput) (ffi:string->pointer seat_id)))
-(define-libinput-procedure
-  (libinput-path-create-context interface user_data)
-  ('* "libinput_path_create_context" (list '* '*))
-  (wrap-libinput (% (unwrap-libinput-interface interface) user_data)))
+
+(define-public (libinput-path-create-context open-restricted close-restricted)
+  (assert (procedure? open-restricted))
+  (assert (procedure? close-restricted))
+  (wrap-libinput
+   (%libinput-path-create-context open-restricted close-restricted)))
+
 (define-libinput-procedure
   (libinput-path-add-device libinput path)
   ('* "libinput_path_add_device" (list '* '*))
@@ -1183,10 +1184,12 @@
   (libinput-dispatch libinput)
   (ffi:int "libinput_dispatch" (list '*))
   (% (unwrap-libinput libinput)))
+
 (define-libinput-procedure
   (libinput-get-event libinput)
   ('* "libinput_get_event" (list '*))
   (wrap-libinput-event (% (unwrap-libinput libinput))))
+
 (define-libinput-procedure
   (libinput-next-event-type libinput)
   (ffi:int32 "libinput_next_event_type" (list '*))

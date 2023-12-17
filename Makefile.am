@@ -23,3 +23,10 @@ SUFFIXES = .scm .go
 moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)
 godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache
 SOURCES = libinput.scm libinput/config.scm
+BUILT_SOURCES= $(filter %.x, $(libguile_libinput_la_SOURCES:%.c=%.x))
+.c.x:
+	$(AM_V_GEN)$(top_builddir)/pre-inst-env guile-snarf -o $@ $< $(libguile_libinput_la_CFLAGS)
+libguile_libinput_la_SOURCES= libinput.c
+libguile_libinput_la_CFLAGS= $(LIBINPUT_CFLAGS) $(GUILE_CFLAGS)
+libguile_libinput_la_LIBADD= $(LIBINPUT_LIBS) $(GUILE_LIBS)
+lib_LTLIBRARIES = libguile_libinput.la
