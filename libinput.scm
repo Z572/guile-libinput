@@ -565,10 +565,10 @@
         (error "not found" '%libinput-event-type-enum o)))
   (define-public (%libinput-event-type-enum->number o)
     (bs:enum->integer %libinput-event-type-enum o)))
-(define-libinput-procedure
-  (libinput-event-destroy event)
-  (ffi:void "libinput_event_destroy" (list '*))
-  (% (unwrap-libinput-event event)))
+
+(define %libinput_event_destroy
+  (delay (foreign-library-pointer (force %libinput) "libinput_event_destroy")))
+
 (define-libinput-procedure
   (libinput-event-get-type event)
   (ffi:int32 "libinput_event_get_type" (list '*))
@@ -1185,10 +1185,11 @@
   (ffi:int "libinput_dispatch" (list '*))
   (% (unwrap-libinput libinput)))
 
-(define-libinput-procedure
-  (libinput-get-event libinput)
+(define-libinput-procedure (libinput-get-event libinput)
   ('* "libinput_get_event" (list '*))
-  (wrap-libinput-event (% (unwrap-libinput libinput))))
+  (let ((o (% (unwrap-libinput libinput))))
+    (ffi:set-pointer-finalizer! o (force %libinput_event_destroy))
+    (wrap-libinput-event o)))
 
 (define-libinput-procedure
   (libinput-next-event-type libinput)
