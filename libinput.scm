@@ -11,15 +11,17 @@
 (define-syntax define-libinput-procedure
   (lambda (x)
     (syntax-case x ()
-      ((_ (name args ...) (c-return c-name c-args) body ...)
+      ((_ (pname args ...) (c-return c-name c-args) body ...)
        (with-syntax ((% (datum->syntax x '%)))
          (syntax
-          (define-public name
+          (define-public pname
             (let ((% (ffi:pointer->procedure
                       c-return
                       (dynamic-func c-name (force %libinput))
                       c-args)))
-              (lambda* (args ...) body ...)))))))))
+              (lambda* (args ...)
+                #((name . pname))
+                body ...)))))))))
 (define (pointer->string* ptr)
   (if (ffi:null-pointer? ptr) #f (ffi:pointer->string ptr)))
 (define non-zero? (negate zero?))
