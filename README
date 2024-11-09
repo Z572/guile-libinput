@@ -1,0 +1,8 @@
+#+begin_src 
+guix time-machine --channels=channels.scm -- shell
+#+end_src
+
+
+# Local Variables:
+# mode: org
+# End:
